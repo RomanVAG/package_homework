@@ -38,3 +38,16 @@ def get_mask_account(account: str | int) -> str:
     """Маскирует номер банковского счёта (первые 12 цифр)"""
     account_str = str(account)
     return f"**{account_str[-4:]}"
+
+
+def get_date(date_str: str) -> str:
+    """
+    Преобразует дату из формата "2024-03-11T02:26:18.671407"
+    в формат 'ДД.ММ.ГГГГ'
+    """
+    # Разделяем строку по 'T' и берем первую часть (дату)
+    date_part = date_str.split("T")[0]
+    # Разделяем дату по '-'
+    year, month, day = date_part.split("-")
+    # Форматируем в нужный вид
+    return f"{day}.{month}.{year}"
