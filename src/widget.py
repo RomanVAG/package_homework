@@ -3,16 +3,19 @@ from src.mask import get_mask_account, get_mask_card_number
 
 def mask_account_card(account_info: str) -> str:
     """Маскирует номер карты или счета в переданной строке."""
-    # Разделяем строку на части
-    parts = account_info.split()
-
-    # Определяем тип (карта или счет)
-    if not parts:
+    if not account_info.strip():  # Если строка пустая или содержит только пробелы
         return account_info
 
-    # Собираем название (все части кроме последней)
-    name = " ".join(parts[:-1])
-    number = parts[-1]
+    parts = account_info.split()
+    if not parts:  # На всякий случай (хотя предыдущая проверка это уже отсекает)
+        return account_info
+
+    name = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
+    number = parts[-1] if len(parts) > 1 else ""
+
+    # Если нет номера (только "Счет" или "Карта"), возвращаем как есть
+    if not number:
+        return account_info
 
     # Маскируем в зависимости от типа
     if name.lower() == "счет":
@@ -20,7 +23,7 @@ def mask_account_card(account_info: str) -> str:
     else:
         masked_number = get_mask_card_number(number)
 
-    return f"{name} {masked_number}"
+    return f"{name} {masked_number}" if name else masked_number
 
 
 def get_date(date_str: str) -> str:
