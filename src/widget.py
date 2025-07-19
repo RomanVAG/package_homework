@@ -6,24 +6,51 @@ def mask_account_card(account_info: str) -> str:
     if not account_info.strip():  # Если строка пустая или содержит только пробелы
         return account_info
 
-    parts = account_info.split()
-    if not parts:  # На всякий случай (хотя предыдущая проверка это уже отсекает)
+    # Сохраняем исходные пробелы
+    leading_spaces = account_info[:len(account_info) - len(account_info.lstrip())]
+    trailing_spaces = account_info[len(account_info.rstrip()):]
+
+    # Работаем с очищенной строкой (без ведущих/конечных пробелов)
+    clean_str = account_info.strip()
+    parts = clean_str.split()
+
+    if not parts:
         return account_info
 
-    name = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
-    number = parts[-1] if len(parts) > 1 else ""
+    # Разделяем название и номер
+    name_parts = []
+    number = ""
+    for part in parts:
+        if part.isdigit():
+            number = part
+            break
+        name_parts.append(part)
 
-    # Если нет номера (только "Счет" или "Карта"), возвращаем как есть
-    if not number:
+    name = " ".join(name_parts) if name_parts else ""
+
+    # Если нет номера или номер слишком короткий
+    if not number or (name.lower() == "счет" and len(number) < 4) or (name.lower() != "счет" and len(number) != 16):
         return account_info
 
-    # Маскируем в зависимости от типа
+    # Маскируем номер
     if name.lower() == "счет":
-        masked_number = get_mask_account(number)
+        masked_number = f"**{number[-4:]}"
     else:
-        masked_number = get_mask_card_number(number)
+        masked_number = f"{number[:4]} {number[4:6]}** **** {number[-4:]}"
 
-    return f"{name} {masked_number}" if name else masked_number
+    # Восстанавливаем оригинальные пробелы между названием и номером
+    original_parts = account_info.split()
+    if len(original_parts) > 1:
+        # Находим позицию начала номера в исходной строке
+        num_start = account_info.find(original_parts[-1])
+        # Вычисляем пробелы между названием и номером
+        space_between = account_info[len(leading_spaces) + len(' '.join(original_parts[:-1])):num_start]
+    else:
+        space_between = " "
+
+    # Собираем результат с сохранением всех пробелов
+    result = f"{leading_spaces}{name}{space_between}{masked_number}{trailing_spaces}"
+    return result
 
 
 def get_date(date_str: str) -> str:
