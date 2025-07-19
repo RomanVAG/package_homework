@@ -1,6 +1,6 @@
 import pytest
 
-from src.mask import get_mask_card_number
+from src.mask import get_mask_card_number, get_mask_account
 
 @pytest.mark.parametrize("card_number, expected", [
     ("1234567890123456", "1234 56** **** 3456"),
@@ -29,3 +29,53 @@ def test_invalid_card_numbers(card_number, error_msg):
     """Проверяет обработку некорректных номеров карт"""
     with pytest.raises(ValueError, match=error_msg):
         get_mask_card_number(card_number)
+
+
+@pytest.mark.parametrize("account, expected", [
+    ("1234567890123456", "**3456"),
+    ("123456789012", "**9012"),
+    (1234567890123456, "**3456"),
+    ("12345678", "**5678"),
+    ("1234567890", "**7890"),
+    ("12345678901234567890", "**7890"),
+    ("1234", "**1234"),
+    ("12", "**12"),
+    ("1", "**1"),
+], ids=[
+    "16 цифр строка",
+    "12 цифр строка",
+    "16 цифр число",
+    "8 цифр",
+    "10 цифр",
+    "20 цифр",
+    "4 цифры",
+    "2 цифры",
+    "1 цифра"
+])
+def test_valid_accounts(account, expected):
+    """Тестирование корректных номеров счетов"""
+    assert get_mask_account(account) == expected
+
+@pytest.mark.parametrize("account, error_msg", [
+    ("", "Номер счета не может быть пустым"),
+    ("abcd", "Номер счета должен содержать только цифры"),
+    ("1234abcd", "Номер счета должен содержать только цифры"),
+    ("1234!@#$", "Номер счета должен содержать только цифры"),
+    ("!@#$%^", "Номер счета должен содержать только цифры"),
+    (None, "Номер счета не может быть None"),
+    (True, "Номер счета должен быть строкой или числом"),
+    (False, "Номер счета должен быть строкой или числом"),
+], ids=[
+    "пустая строка",
+    "только буквы",
+    "цифры и буквы",
+    "цифры и спецсимволы",
+    "только спецсимволы",
+    "None",
+    "True",
+    "False"
+])
+def test_invalid_accounts(account, error_msg):
+    """Тестирование некорректных входных данных"""
+    with pytest.raises(ValueError, match=error_msg):
+        get_mask_account(account)
