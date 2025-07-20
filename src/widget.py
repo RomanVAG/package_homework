@@ -3,53 +3,62 @@ from src.mask import get_mask_account, get_mask_card_number
 
 def mask_account_card(account_info: str) -> str:
     """Маскирует номер карты или счета в переданной строке."""
-    if not account_info.strip():  # Если строка пустая или содержит только пробелы
+
+    # Проверка, является ли переданный аргумент строкой. Если нет — генерируется исключение ValueError
+    if not isinstance(account_info, str):
+        raise ValueError("Входные данные должны быть строкой")
+
+    # Удаляем пробелы в начале и конце строки.
+    # Еcли строка пустая, либо состоит только из пробелов, возвращаем исходную строку без изменений.
+    if not account_info.strip():
         return account_info
 
-    # Сохраняем исходные пробелы
+    # Сохраняем пробелы в начале и конце
     leading_spaces = account_info[:len(account_info) - len(account_info.lstrip())]
     trailing_spaces = account_info[len(account_info.rstrip()):]
 
-    # Работаем с очищенной строкой (без ведущих/конечных пробелов)
-    clean_str = account_info.strip()
-    parts = clean_str.split()
-
+    # Разделяем на слова (без лишних пробелов)
+    parts = account_info.strip().split()
     if not parts:
         return account_info
 
-    # Разделяем название и номер
+    # Находим номер (последняя последовательность цифр)
+    number = ''
     name_parts = []
-    number = ""
-    for part in parts:
+    for part in reversed(parts):
         if part.isdigit():
             number = part
             break
-        name_parts.append(part)
+        name_parts.insert(0, part)
 
-    name = " ".join(name_parts) if name_parts else ""
-
-    # Если нет номера или номер слишком короткий
-    if not number or (name.lower() == "счет" and len(number) < 4) or (name.lower() != "счет" and len(number) != 16):
+    # Если номер не найден, возвращаем исходную строку
+    if not number:
         return account_info
 
-    # Маскируем номер
-    if name.lower() == "счет":
+    # Проверяем, что номер состоит только из цифр
+    if not number.isdigit():
+        raise ValueError("Номер должен содержать только цифры")
+
+    # Проверяем наличие пробелов в номере
+    is_account = any(word.lower() in ['счет', 'счёт'] for word in name_parts)
+    if not is_account and ' ' in number:
+        raise ValueError("Номер не должен содержать пробелов")
+
+    # Проверка длины
+    if len(number) not in (16, 20):
+        raise ValueError("Номер карты или номер счета должен содержать 16 или 20 цифр")
+
+    # Маскировка
+    if is_account:
         masked_number = f"**{number[-4:]}"
     else:
         masked_number = f"{number[:4]} {number[4:6]}** **** {number[-4:]}"
 
-    # Восстанавливаем оригинальные пробелы между названием и номером
-    original_parts = account_info.split()
-    if len(original_parts) > 1:
-        # Находим позицию начала номера в исходной строке
-        num_start = account_info.find(original_parts[-1])
-        # Вычисляем пробелы между названием и номером
-        space_between = account_info[len(leading_spaces) + len(' '.join(original_parts[:-1])):num_start]
-    else:
-        space_between = " "
+    # Собираем результат с сохранением оригинального форматирования
+    name_part = ' '.join(name_parts) if name_parts else ""
+    original_space = ' ' if name_part else ""
 
-    # Собираем результат с сохранением всех пробелов
-    result = f"{leading_spaces}{name}{space_between}{masked_number}{trailing_spaces}"
+    result = f"{leading_spaces}{name_part}{original_space}{masked_number}{trailing_spaces}"
     return result
 
 
