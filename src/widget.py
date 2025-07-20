@@ -1,72 +1,37 @@
 from src.mask import get_mask_account, get_mask_card_number
 
+
 def mask_account_card(account_info: str) -> str:
-    """
-    Маскирует номер карты или счета в переданной строке.
-    Для карт используется маска: первые 4 цифры, затем ** и последние 4 цифры
-    Для счетов отображается только ** и последние 4 цифры
-    """
-    # Проверяем тип входных данных
+    """Маскирует номер карты или счета в переданной строке."""
     if not isinstance(account_info, str):
         raise ValueError("Входные данные должны быть строкой")
 
-    # Сохраняем оригинальное форматирование пробелов
-    leading_spaces = account_info[:len(account_info) - len(account_info.lstrip())]
-    trailing_spaces = account_info[len(account_info.rstrip()):]
-
-    # Очищаем строку для обработки
-    stripped_info = account_info.strip()
-
-    # Разделяем на части
-    parts = stripped_info.split()
-
-    # Если строка пустая или содержит только пробелы
-    if not parts:
+    # Удаляем лишние пробелы и разделяем строку на части
+    stripped = account_info.strip()
+    if not stripped:
         return account_info
 
-    # Определяем тип счета/карты
-    is_account = any(word.lower() in ['счет', 'счёт'] for word in parts)
+    parts = stripped.split()
 
-    # Ищем номер (последняя последовательность цифр)
-    number = ''
-    name_parts = []
-    for part in parts:
-        if part.isdigit():
-            number = part
-        else:
-            name_parts.append(part)
-
-    # Если номер не найден, возвращаем исходную строку
-    if not number:
+    # Если только одно слово (название без номера)
+    if len(parts) == 1:
         return account_info
 
-    # Проверяем, что номер состоит только из цифр
-    if not number.isdigit():
-        raise ValueError("Номер должен содержать только цифры")
-
-    # Проверяем наличие пробелов в номере карты
-    if not is_account and ' ' in number:
-        raise ValueError("Номер карты не должен содержать пробелов")
+    # Собираем название (все части кроме последней)
+    name = " ".join(parts[:-1])
+    number = parts[-1]
 
     # Маскируем в зависимости от типа
-    if is_account:
-        # Для счетов: ** + последние 4 цифры
-        if len(number) >= 4:
-            masked_number = f"**{number[-4:]}"
+    try:
+        if name.lower() == "счет":
+            masked_number = get_mask_account(number)
         else:
-            masked_number = number
-    else:
-        # Для карт: 4 + ** + ** + ** + 4
-        if len(number) == 16:
-            masked_number = f"{number[:4]} {number[4:6]}** **** {number[-4:]}"
-        else:
-            masked_number = number
+            masked_number = get_mask_card_number(number)
+    except ValueError:
+        # Если номер невалидный, возвращаем исходную строку
+        return account_info
 
-    # Собираем результат, сохраняя оригинальное форматирование
-    name_part = ' '.join(name_parts)
-    original_space = ' ' if name_part and number else ''
-
-    return f"{leading_spaces}{name_part}{original_space}{masked_number}{trailing_spaces}"
+    return f"{name} {masked_number}"
 
 
 def get_date(date_str: str) -> str:
