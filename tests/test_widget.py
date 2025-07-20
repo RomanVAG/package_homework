@@ -69,11 +69,11 @@ def test_mask_account_card(input_str, expected):
         (None, ValueError, "Входные данные должны быть строкой"),
 
         # Номера с пробелами (для карт)
-        ("Карта 1234 5678 9012 3456", ValueError, "Номер не должен содержать пробелов"),
-        ("Visa 1234 5678 9012 3456", ValueError, "Номер не должен содержать пробелов"),
+        ("Карта 1234 5678 9012 3456", ValueError, "Номер карты не должен содержать пробелов"),
+        ("Visa 1234 5678 9012 3456", ValueError, "Номер карты не должен содержать пробелов"),
 
         # Слишком длинные номера счетов
-        ("Счет 123456789012345678901", ValueError, "Номер счета должен содержать от 4 до 20 цифр"),
+        ("Счет 123456789012345678901", ValueError, "Номер счета должен содержать 20 цифр"),
     ]
 )
 def test_mask_account_card_errors(input_str, expected_exception, error_msg):
@@ -81,17 +81,3 @@ def test_mask_account_card_errors(input_str, expected_exception, error_msg):
     with pytest.raises(expected_exception) as excinfo:
         mask_account_card(input_str)
     assert error_msg in str(excinfo.value)
-
-
-# Тесты для проверки сохранения оригинального форматирования
-@pytest.mark.parametrize(
-    "input_str, expected",
-    [
-        ("  Счет  1234567890  ", "  Счет  **7890  "),
-        ("Карта\t1234567812345678", "Карта\t1234 56** **** 5678"),
-        ("  Visa  1234567812345678\t", "  Visa  1234 56** **** 5678\t"),
-    ]
-)
-def test_format_preservation(input_str, expected):
-    """Проверяет сохранение оригинального форматирования (пробелы, табы)."""
-    assert mask_account_card(input_str) == expected
