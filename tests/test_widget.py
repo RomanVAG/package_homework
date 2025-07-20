@@ -76,6 +76,8 @@ def test_mask_account_card(input_str, expected):
         ("Счет 123456789012345678901", ValueError, "Номер счета должен содержать 20 цифр"),
     ]
 )
+
+
 def test_mask_account_card_errors(input_str, expected_exception, error_msg):
     """Проверяет обработку некорректных входных данных."""
     with pytest.raises(expected_exception) as excinfo:
