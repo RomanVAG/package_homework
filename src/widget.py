@@ -6,7 +6,6 @@ def mask_account_card(account_info: str) -> str:
     if not isinstance(account_info, str):
         raise ValueError("Входные данные должны быть строкой")
 
-    # Удаляем лишние пробелы и разделяем строку на части
     stripped = account_info.strip()
     if not stripped:
         return account_info
@@ -17,19 +16,29 @@ def mask_account_card(account_info: str) -> str:
     if len(parts) == 1:
         return account_info
 
-    # Собираем название (все части кроме последней)
     name = " ".join(parts[:-1])
     number = parts[-1]
 
-    # Маскируем в зависимости от типа
+    # Проверяем, содержит ли номер только цифры
+    if not number.replace(" ", "").isdigit():
+        raise ValueError("Номер должен содержать только цифры")
+
     try:
         if name.lower() == "счет":
+            # Для счетов проверяем длину (20 цифр)
+            if len(number) != 20:
+                raise ValueError("Номер счета должен содержать 20 цифр")
             masked_number = get_mask_account(number)
         else:
+            # Для карт сначала проверяем пробелы
+            if " " in number:
+                raise ValueError("Номер карты не должен содержать пробелов")
+            # Затем проверяем длину (16 цифр)
+            if len(number) != 16:
+                raise ValueError("Номер карты должен содержать 16 цифр")
             masked_number = get_mask_card_number(number)
-    except ValueError:
-        # Если номер невалидный, возвращаем исходную строку
-        return account_info
+    except ValueError as e:
+        raise ValueError(str(e))
 
     return f"{name} {masked_number}"
 
