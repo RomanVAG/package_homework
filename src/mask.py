@@ -1,9 +1,10 @@
 def get_mask_card_number(card_number: str | int) -> str:
     """Маскирует номер банковской карты (цифры с 7 по 12)"""
+
     if not isinstance(card_number, (str, int)) or isinstance(card_number, bool):
         raise ValueError("Номер карты должен быть строкой или числом")
 
-    card_str = str(card_number).replace(" ", "")  #
+    card_str = str(card_number).strip()
 
     if not card_str or not card_str.isdigit():
         raise ValueError("Номер карты должен содержать только цифры")
