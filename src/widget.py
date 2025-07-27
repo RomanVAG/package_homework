@@ -45,62 +45,79 @@ def mask_account_card(account_info: str) -> str:
 
 def get_date(date_str: str) -> str:
     """
-    Преобразует дату из формата ISO 8601 ("YYYY-MM-DDThh:mm:ss...")
-    в формат 'ДД.ММ.ГГГГ'.
+    Преобразует дату из формата "2024-03-11T02:26:18.671407"
+    в формат 'ДД.ММ.ГГГГ'
 
-    Args:
-        date_str: Строка с датой в формате ISO 8601 (обязательно с 'T')
+    Аргументы:
+        date_str: Строка с датой в формате ISO 8601 (YYYY-MM-DDTHH:MM:SS...)
 
-    Returns:
-        Строка с датой в формате 'ДД.ММ.ГГГГ'
+    Возвращает:
+        Строку с датой в формате ДД.ММ.ГГГГ
 
-    Raises:
-        ValueError: Если входная строка имеет неверный формат или недопустимую дату
-        IndexError: Если строка пустая или не содержит компонентов даты
+    Выбрасывает:
+        ValueError: Если входная строка не соответствует ожидаемому формату
+                   или содержит недопустимые значения даты
+        IndexError: Если входная строка пустая
     """
     if not date_str:
         raise IndexError("Пустая строка даты")
 
-    if 'T' not in date_str:
-        raise ValueError("Отсутствует разделитель 'T' между датой и временем")
-
     try:
-        date_part = date_str.split('T')[0]
-        parts = date_part.split('-')
+        # Проверяем, может это вообще не дата в каком-либо формате
+        if not any(c.isdigit() for c in date_str):
+            raise ValueError("Неверный формат даты")
 
+        # Сначала проверяем общий формат (наличие T и структуру даты)
+        if "T" not in date_str:
+            # Проверяем, не является ли это датой в другом формате (например, 31.12.2023)
+            if "." in date_str or "/" in date_str:
+                raise ValueError("Неверный формат даты")
+            raise ValueError("Отсутствует разделитель 'T'")
+
+        date_part = date_str.split("T")[0]
+        parts = date_part.split("-")
         if len(parts) != 3:
-            raise ValueError("Неверный формат даты. Ожидается YYYY-MM-DD")
+            raise ValueError("Неверный формат даты")
 
-        year, month, day = parts
+        year_str, month_str, day_str = parts
 
-        if not (year.isdigit() and month.isdigit() and day.isdigit()):
-            raise ValueError("Все компоненты даты должны быть цифрами")
+        # Проверка что все компоненты состоят из цифр
+        if not (year_str.isdigit() and month_str.isdigit() and day_str.isdigit()):
+            raise ValueError("Неверный формат даты")
 
-        year_num = int(year)
-        month_num = int(month)
-        day_num = int(day)
+        # Проверка длины (должны быть ведущие нули)
+        if len(month_str) != 2 or len(day_str) != 2:
+            raise ValueError("Требуются ведущие нули в дате")
 
-        if month_num < 1 or month_num > 12:
-            raise ValueError(f"Недопустимый месяц: {month_num}. Должен быть 1-12")
+        year = int(year_str)
+        month = int(month_str)
+        day = int(day_str)
 
-        if day_num < 1:
-            raise ValueError(f"Недопустимый день: {day_num}. День не может быть меньше 1")
+        # Проверка года
+        if year < 0:
+            raise ValueError("Недопустимый год")
 
-        # Проверка максимального количества дней в месяце
-        max_days = 31
-        if month_num in [4, 6, 9, 11]:
-            max_days = 30
-        elif month_num == 2:
-            max_days = 29 if (year_num % 400 == 0 or (year_num % 100 != 0 and year_num % 4 == 0)) else 28
+        # Проверка месяца
+        if month < 1 or month > 12:
+            raise ValueError("Недопустимый месяц")
 
-        if day_num > max_days:
-            raise ValueError(f"Недопустимый день {day_num} для месяца {month_num}. Максимум {max_days}")
+        # Проверка дня
+        if day < 1 or day > 31:
+            raise ValueError("Недопустимый день")
 
-        # Форматирование с ведущими нулями
-        day_str = f"{day_num:02d}"
-        month_str = f"{month_num:02d}"
+        # Дополнительная проверка дня для месяцев с 30 днями
+        if month in [4, 6, 9, 11] and day > 30:
+            raise ValueError("Недопустимый день")
 
-        return f"{day_str}.{month_str}.{year}"
+        # Проверка февраля с учетом високосных годов
+        if month == 2:
+            is_leap = (year % 400 == 0) or (year % 100 != 0 and year % 4 == 0)
+            if day > 29 or (day == 29 and not is_leap):
+                raise ValueError("Недопустимый день")
 
-    except IndexError as e:
-        raise IndexError("Не удалось разобрать строку даты") from e
+        return f"{day_str}.{month_str}.{year_str}"
+
+    except ValueError as e:
+        raise e
+    except Exception as e:
+        raise ValueError(f"Неожиданная ошибка при обработке даты: {str(e)}")
