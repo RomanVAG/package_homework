@@ -85,8 +85,6 @@ def test_mask_account_card(input_str, expected):
         ("Карта 12345678123456781", ValueError, "Номер карты должен содержать 16 цифр"),  # 17 цифр
     ]
 )
-
-
 def test_mask_account_card_errors(input_str, expected_exception, error_msg):
     """Проверяет обработку некорректных входных данных."""
     with pytest.raises(expected_exception) as excinfo:

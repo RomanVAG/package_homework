@@ -2,6 +2,7 @@ import pytest
 
 from src.mask import get_mask_card_number, get_mask_account
 
+
 @pytest.mark.parametrize("card_number, expected", [
     ("1234567890123456", "1234 56** **** 3456"),
     (1234567890123456, "1234 56** **** 3456"),
@@ -9,6 +10,7 @@ from src.mask import get_mask_card_number, get_mask_account
 def test_valid_card_numbers(card_number, expected):
     """Проверяет корректную маскировку валидных номеров карт"""
     assert get_mask_card_number(card_number) == expected
+
 
 @pytest.mark.parametrize("card_number, error_msg", [
     # Неправильная длина
@@ -23,8 +25,6 @@ def test_valid_card_numbers(card_number, expected):
     (True, "Номер карты должен быть строкой или числом"),
     (12.34, "Номер карты должен быть строкой или числом"),
 ])
-
-
 def test_invalid_card_numbers(card_number, error_msg):
     """Проверяет обработку некорректных номеров карт"""
     with pytest.raises(ValueError, match=error_msg):
@@ -55,6 +55,7 @@ def test_invalid_card_numbers(card_number, error_msg):
 def test_valid_accounts(account, expected):
     """Тестирование корректных номеров счетов"""
     assert get_mask_account(account) == expected
+
 
 @pytest.mark.parametrize("account, error_msg", [
     ("", "Номер счета не может быть пустым"),

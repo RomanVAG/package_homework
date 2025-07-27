@@ -32,5 +32,5 @@ transactions = [
     },
 ]
 
-print("Отмененные транзакции:",filter_by_state(transactions, "CANCELED"))
-print("Отсортированные транзакции по дате:",sort_by_date(transactions))
+print("Отмененные транзакции:", filter_by_state(transactions, "CANCELED"))
+print("Отсортированные транзакции по дате:", sort_by_date(transactions))
