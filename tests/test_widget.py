@@ -41,12 +41,11 @@ from src.widget import get_date
         ("Карта 0000000000000000", "Карта 0000 00** **** 0000"),
     ],
 )
-def test_mask_account_card(input_str, expected):
+def test_mask_account_card(input_str: str, expected: str) -> None:
     """Проверяет корректность маскировки для различных типов карт и счетов."""
     assert mask_account_card(input_str) == expected
 
 
-# Дополнительные тесты для проверки обработки ошибок
 @pytest.mark.parametrize(
     "input_str, expected_exception, error_msg",
     [
@@ -65,197 +64,130 @@ def test_mask_account_card(input_str, expected):
         ("Карта 1234", ValueError, "Номер карты должен содержать 16 цифр"),
         ("Visa 12345678", ValueError, "Номер карты должен содержать 16 цифр"),
         ("Карта 123456781234", ValueError, "Номер карты должен содержать 16 цифр"),
-        # Слишком длинные номера карт (добавленные тесты)
+        # Слишком длинные номера карт
         ("Карта 12345678123456781234", ValueError, "Номер карты должен содержать 16 цифр"),
         ("Visa 123456781234567812345", ValueError, "Номер карты должен содержать 16 цифр"),
         ("MasterCard 12345678123456789", ValueError, "Номер карты должен содержать 16 цифр"),
         # Граничные случаи длины
-        ("Карта 123456781234567", ValueError, "Номер карты должен содержать 16 цифр"),  # 15 цифр
-        ("Карта 12345678123456781", ValueError, "Номер карты должен содержать 16 цифр"),  # 17 цифр
+        ("Карта 123456781234567", ValueError, "Номер карты должен содержать 16 цифр"),
+        ("Карта 12345678123456781", ValueError, "Номер карты должен содержать 16 цифр"),
     ],
 )
-def test_mask_account_card_errors(input_str, expected_exception, error_msg):
+def test_mask_account_card_errors(
+        input_str: str | int | None,
+        expected_exception: type[Exception],
+        error_msg: str
+) -> None:
     """Проверяет обработку некорректных входных данных."""
     with pytest.raises(expected_exception) as excinfo:
-        mask_account_card(input_str)
+        mask_account_card(input_str)  # type: ignore[arg-type]
     assert error_msg in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
-    "input_date,expected",  # Параметры для теста: входная строка и ожидаемый результат
+    "input_date,expected",
     [
-        # Корректные тестовые случаи:
-        ("2023-12-31T23:59:59.999", "31.12.2023"),  # Стандартный формат с миллисекундами
-        ("2020-02-29T00:00:00.000", "29.02.2020"),  # Високосный год (29 февраля)
-        ("1999-01-01T00:00:00", "01.01.1999"),  # Граничное значение (смена тысячелетия)
-        ("2050-06-15T12:30:45", "15.06.2050"),  # Дата в будущем
-        ("0001-01-01T00:00:00", "01.01.0001"),  # Минимальная возможная дата
+        ("2023-12-31T23:59:59.999", "31.12.2023"),
+        ("2020-02-29T00:00:00.000", "29.02.2020"),
+        ("1999-01-01T00:00:00", "01.01.1999"),
+        ("2050-06-15T12:30:45", "15.06.2050"),
+        ("0001-01-01T00:00:00", "01.01.0001"),
     ],
-    ids=[  # Идентификаторы тестовых случаев для отчетов
-        "normal_case",  # Стандартный случай
-        "leap_year",  # Проверка високосного года
-        "millenium_change",  # Проверка смены тысячелетия
-        "future_date",  # Проверка даты в будущем
-        "min_date",  # Проверка минимальной даты
+    ids=[
+        "normal_case",
+        "leap_year",
+        "millenium_change",
+        "future_date",
+        "min_date",
     ],
 )
-def test_valid_date_formats(input_date, expected):
-    """Тестирование корректных форматов даты.
-
-    Проверяет преобразование валидных строк с датами из формата ISO 8601
-    в формат 'ДД.ММ.ГГГГ' с соблюдением всех требований.
-    """
-    # Вызов тестируемой функции
+def test_valid_date_formats(input_date: str, expected: str) -> None:
+    """Тестирование корректных форматов даты."""
     result = get_date(input_date)
-
-    # Проверка основного преобразования
     assert result == expected, f"Ожидалось {expected}, получено {result}"
-
-    # Проверка длины результата (должно быть 10 символов: ДД.ММ.ГГГГ)
-    assert len(result) == 10, "Длина строки даты должна быть 10 символов"
-
-    # Проверка разделителей в результате
-    assert result[2] == ".", "Третий символ должен быть точкой (разделитель дня и месяца)"
-    assert result[5] == ".", "Шестой символ должен быть точкой (разделитель месяца и года)"
-
-    # Разделяем результат на компоненты для детальной проверки
+    assert len(result) == 10
+    assert result[2] == "." and result[5] == "."
     day, month, year = result.split(".")
-
-    # Проверка формата дня
-    assert day.isdigit(), "День должен содержать только цифры"
-    assert len(day) == 2, "День должен состоять из 2 цифр"
-    assert 1 <= int(day) <= 31, "День должен быть в диапазоне 1-31"
-
-    # Проверка формата месяца
-    assert month.isdigit(), "Месяц должен содержать только цифры"
-    assert len(month) == 2, "Месяц должен состоять из 2 цифр"
-    assert 1 <= int(month) <= 12, "Месяц должен быть в диапазоне 1-12"
-
-    # Проверка формата года
-    assert year.isdigit(), "Год должен содержать только цифры"
-    assert len(year) == 4, "Год должен состоять из 4 цифр"
+    assert day.isdigit() and len(day) == 2 and 1 <= int(day) <= 31
+    assert month.isdigit() and len(month) == 2 and 1 <= int(month) <= 12
+    assert year.isdigit() and len(year) == 4
 
 
 @pytest.mark.parametrize(
-    "invalid_input,expected_exception,error_pattern",  # Параметры: входные данные, ожидаемое исключение и текст ошибки
+    "invalid_input,expected_exception,error_pattern",
     [
-        # Неправильные форматы дат:
-        ("2023-12-31 23:59:59", ValueError, "Отсутствует разделитель 'T'"),  # Пробел вместо 'T'
-        ("2023-12-31", ValueError, "Отсутствует разделитель 'T'"),  # Нет части с временем
-        ("31.12.2023", ValueError, "Неверный формат даты"),  # Обратный формат даты
-        ("2023/12/31T00:00:00", ValueError, "Неверный формат даты"),  # Слэши вместо дефисов
-        ("2023-13-01T00:00:00", ValueError, "Недопустимый месяц"),  # Несуществующий месяц
-        ("2023-02-30T00:00:00", ValueError, "Недопустимый день"),  # Несуществующий день в феврале
-        ("2023-04-31T00:00:00", ValueError, "Недопустимый день"),  # Несуществующий день в апреле
-        ("", IndexError, "Пустая строка даты"),  # Пустая строка
-        ("Just a string", ValueError, "Неверный формат даты"),  # Произвольный текст
-        ("Transaction: 2023-12-31T...", ValueError, "Неверный формат даты"),  # Текст с частичной датой
+        ("2023-12-31 23:59:59", ValueError, "Отсутствует разделитель 'T'"),
+        ("2023-12-31", ValueError, "Отсутствует разделитель 'T'"),
+        ("31.12.2023", ValueError, "Неверный формат даты"),
+        ("2023/12/31T00:00:00", ValueError, "Неверный формат даты"),
+        ("2023-13-01T00:00:00", ValueError, "Недопустимый месяц"),
+        ("2023-02-30T00:00:00", ValueError, "Недопустимый день"),
+        ("2023-04-31T00:00:00", ValueError, "Недопустимый день"),
+        ("", IndexError, "Пустая строка даты"),
+        ("Just a string", ValueError, "Неверный формат даты"),
+        ("Transaction: 2023-12-31T...", ValueError, "Неверный формат даты"),
     ],
-    ids=[  # Идентификаторы тестовых случаев
-        "space_separator",  # Пробел вместо 'T'
-        "date_only",  # Только дата без времени
-        "reverse_format",  # Обратный формат даты
-        "slash_separator",  # Слэши в дате
-        "invalid_month",  # Неправильный месяц
-        "invalid_day_feb",  # Неправильный день в феврале
-        "invalid_day_apr",  # Неправильный день в апреле
-        "empty_string",  # Пустая строка
-        "random_text",  # Случайный текст
-        "prefix_text",  # Текст с префиксом
+    ids=[
+        "space_separator",
+        "date_only",
+        "reverse_format",
+        "slash_separator",
+        "invalid_month",
+        "invalid_day_feb",
+        "invalid_day_apr",
+        "empty_string",
+        "random_text",
+        "prefix_text",
     ],
 )
-def test_invalid_inputs(invalid_input, expected_exception, error_pattern):
-    """Проверка обработки некорректных входных данных.
-
-    Убеждается, что функция корректно выбрасывает исключения
-    при получении невалидных входных данных.
-    """
-    # Проверяем, что функция выбрасывает ожидаемое исключение
+def test_invalid_inputs(
+        invalid_input: str,
+        expected_exception: type[Exception],
+        error_pattern: str
+) -> None:
+    """Проверка обработки некорректных входных данных."""
     with pytest.raises(expected_exception) as exc_info:
         get_date(invalid_input)
-
-    # Проверяем, что сообщение об ошибке содержит ожидаемый текст
-    assert error_pattern in str(exc_info.value), (
-        f"Ожидалось сообщение об ошибке содержащее '{error_pattern}', " f"получено: '{str(exc_info.value)}'"
-    )
+    assert error_pattern in str(exc_info.value)
 
 
-def test_return_type_and_format():
-    """Комплексная проверка типа возвращаемого значения и его формата.
-
-    Проверяет что:
-    1. Функция возвращает строку
-    2. Строка соответствует формату 'ДД.ММ.ГГГГ'
-    3. Все компоненты даты являются валидными числами
-    """
-    # Тестовая дата
+def test_return_type_and_format() -> None:
+    """Комплексная проверка типа возвращаемого значения и его формата."""
     test_date = "2023-12-31T23:59:59.999"
-
-    # Получаем результат преобразования
     result = get_date(test_date)
 
-    # 1. Проверка типа возвращаемого значения
-    assert isinstance(result, str), "Функция должна возвращать строку, " f"получен {type(result)}"
-
-    # 2. Проверка структуры строки (разделение на компоненты)
+    assert isinstance(result, str)
     parts = result.split(".")
-    assert len(parts) == 3, (
-        "Дата должна содержать 3 компонента (день.месяц.год), " f"получено {len(parts)} компонентов"
-    )
+    assert len(parts) == 3
 
     day, month, year = parts
-
-    # 3. Детальная проверка каждого компонента
-
-    # Проверка формата дня
-    assert len(day) == 2, f"День должен состоять из 2 цифр, получено: '{day}'"
-    assert day.isdigit(), f"День должен быть числом, получено: '{day}'"
-    day_num = int(day)
-    assert 1 <= day_num <= 31, f"День должен быть от 1 до 31, получено: {day_num}"
-
-    # Проверка формата месяца
-    assert len(month) == 2, f"Месяц должен состоять из 2 цифр, получено: '{month}'"
-    assert month.isdigit(), f"Месяц должен быть числом, получено: '{month}'"
-    month_num = int(month)
-    assert 1 <= month_num <= 12, f"Месяц должен быть от 1 до 12, получено: {month_num}"
-
-    # Проверка формата года
-    assert len(year) == 4, f"Год должен состоять из 4 цифр, получено: '{year}'"
-    assert year.isdigit(), f"Год должен быть числом, получено: '{year}'"
-    year_num = int(year)
-    assert year_num > 0, f"Год должен быть положительным числом, получено: {year_num}"
+    assert len(day) == 2 and day.isdigit() and 1 <= int(day) <= 31
+    assert len(month) == 2 and month.isdigit() and 1 <= int(month) <= 12
+    assert len(year) == 4 and year.isdigit() and int(year) > 0
 
 
 @pytest.mark.parametrize(
-    "input_date,expected",  # Параметры: входная строка и ожидаемый результат
+    "input_date,expected",
     [
-        # Корректный случай с ведущими нулями
         ("2023-01-01T00:00:00", "01.01.2023"),
-        # Ожидаемо падающий тест для дат без ведущих нулей
         pytest.param(
-            "2023-1-1T00:00:00",  # Дата без ведущих нулей
-            None,  # Ожидаемый результат (не используется, так как тест должен упасть)
+            "2023-1-1T00:00:00",
+            None,
             marks=pytest.mark.xfail(
-                raises=ValueError, reason="Функция требует обязательного использования ведущих нулей"
+                raises=ValueError,
+                reason="Функция требует обязательного использования ведущих нулей"
             ),
         ),
     ],
     ids=[
-        "with_leading_zeros",  # Дата с ведущими нулями (валидный случай)
-        "without_leading_zeros",  # Дата без ведущих нулей (невалидный случай)
+        "with_leading_zeros",
+        "without_leading_zeros",
     ],
 )
-def test_leading_zeros_handling(input_date, expected):
-    """Проверка обязательного использования ведущих нулей.
-
-    Убеждается, что функция:
-    1. Корректно обрабатывает даты с ведущими нулями
-    2. Отвергает даты без ведущих нулей с соответствующим исключением
-    """
+def test_leading_zeros_handling(input_date: str, expected: str | None) -> None:
+    """Проверка обязательного использования ведущих нулей."""
     if expected is None:
-        # Для невалидного случая проверяем, что функция выбрасывает ValueError
         with pytest.raises(ValueError):
             get_date(input_date)
     else:
-        # Для валидного случая проверяем корректность преобразования
         assert get_date(input_date) == expected
