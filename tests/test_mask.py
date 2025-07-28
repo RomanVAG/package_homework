@@ -10,7 +10,7 @@ from src.mask import get_mask_card_number, get_mask_account
         (1234567890123456, "1234 56** **** 3456"),
     ],
 )
-def test_valid_card_numbers(card_number, expected):
+def test_valid_card_numbers(card_number: str | int, expected: str) -> None:
     """Проверяет корректную маскировку валидных номеров карт"""
     assert get_mask_card_number(card_number) == expected
 
@@ -31,7 +31,7 @@ def test_valid_card_numbers(card_number, expected):
         (12.34, "Номер карты должен быть строкой или числом"),
     ],
 )
-def test_invalid_card_numbers(card_number, error_msg):
+def test_invalid_card_numbers(card_number: str | int, error_msg: str) -> None:
     """Проверяет обработку некорректных номеров карт"""
     with pytest.raises(ValueError, match=error_msg):
         get_mask_card_number(card_number)
@@ -50,7 +50,7 @@ def test_invalid_card_numbers(card_number, error_msg):
         "20 цифр строка",
     ],
 )
-def test_valid_accounts(account, expected):
+def test_valid_accounts(account: str | int, expected: str) -> None:
     """Тестирование корректных номеров счетов"""
     assert get_mask_account(account) == expected
 
@@ -78,7 +78,7 @@ def test_valid_accounts(account, expected):
         "False",
     ],
 )
-def test_invalid_accounts(account, error_msg):
+def test_invalid_accounts(account: str | int, error_msg: str) -> None:
     """Тестирование некорректных входных данных"""
     with pytest.raises(ValueError, match=error_msg):
         get_mask_account(account)
