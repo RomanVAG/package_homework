@@ -74,9 +74,7 @@ def test_mask_account_card(input_str: str, expected: str) -> None:
     ],
 )
 def test_mask_account_card_errors(
-        input_str: str | int | None,
-        expected_exception: type[Exception],
-        error_msg: str
+    input_str: str | int | None, expected_exception: type[Exception], error_msg: str
 ) -> None:
     """Проверяет обработку некорректных входных данных."""
     with pytest.raises(expected_exception) as excinfo:
@@ -140,11 +138,7 @@ def test_valid_date_formats(input_date: str, expected: str) -> None:
         "prefix_text",
     ],
 )
-def test_invalid_inputs(
-        invalid_input: str,
-        expected_exception: type[Exception],
-        error_pattern: str
-) -> None:
+def test_invalid_inputs(invalid_input: str, expected_exception: type[Exception], error_pattern: str) -> None:
     """Проверка обработки некорректных входных данных."""
     with pytest.raises(expected_exception) as exc_info:
         get_date(invalid_input)
@@ -174,8 +168,7 @@ def test_return_type_and_format() -> None:
             "2023-1-1T00:00:00",
             None,
             marks=pytest.mark.xfail(
-                raises=ValueError,
-                reason="Функция требует обязательного использования ведущих нулей"
+                raises=ValueError, reason="Функция требует обязательного использования ведущих нулей"
             ),
         ),
     ],
