@@ -1,5 +1,5 @@
-from src.widget import get_date, mask_account_card
 from src.processing import filter_by_state, sort_by_date
+from src.widget import get_date, mask_account_card
 
 print(mask_account_card("Счет 64686473678894779589"))
 print(mask_account_card("Maestro 1596837868705199"))
