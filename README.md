@@ -77,7 +77,7 @@
 
 1. Клонируйте репозиторий:
 ```
-git clone git@github.com:RomanVAG/homework_10_2.git
+git clone git@github.com:RomanVAG/package_homework.git
 ```
 2. Установите зависимости:
 ```
