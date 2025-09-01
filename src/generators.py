@@ -30,3 +30,12 @@ def transaction_descriptions(transactions):
         if 'description' in transaction:
             yield transaction['description']
 
+
+def card_number_generator(start, end):
+    """
+    Генератор номеров банковских карт в заданном диапазоне.
+    """
+    for number in range(start, end + 1):
+        # Форматируем число как 16-значную строку с нулями и добавляем пробелы
+        card_str = f"{number:016d}"
+        yield f"{card_str[:4]} {card_str[4:8]} {card_str[8:12]} {card_str[12:16]}"
