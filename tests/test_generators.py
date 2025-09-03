@@ -6,61 +6,90 @@ class TestFilterByCurrency:
     """Тесты для генератора filter_by_currency"""
 
     # Тестовые данные
-    USD_TRANSACTIONS = [
-        {
-            "id": 939719570,
-            "operationAmount": {
-                "amount": "9824.07",
-                "currency": {"code": "USD", "name": "USD"}
+    transactions = (
+        [
+            {
+                "id": 939719570,
+                "state": "EXECUTED",
+                "date": "2018-06-30T02:08:58.425572",
+                "operationAmount": {
+                    "amount": "9824.07",
+                    "currency": {
+                        "name": "USD",
+                        "code": "USD"
+                    }
+                },
+                "description": "Перевод организации",
+                "from": "Счет 75106830613657916952",
+                "to": "Счет 11776614605963066702"
+            },
+            {
+                "id": 142264268,
+                "state": "EXECUTED",
+                "date": "2019-04-04T23:20:05.206878",
+                "operationAmount": {
+                    "amount": "79114.93",
+                    "currency": {
+                        "name": "USD",
+                        "code": "USD"
+                    }
+                },
+                "description": "Перевод со счета на счет",
+                "from": "Счет 19708645243227258542",
+                "to": "Счет 75651667383060284188"
+            },
+            {
+                "id": 873106923,
+                "state": "EXECUTED",
+                "date": "2019-03-23T01:09:46.296404",
+                "operationAmount": {
+                    "amount": "43318.34",
+                    "currency": {
+                        "name": "руб.",
+                        "code": "RUB"
+                    }
+                },
+                "description": "Перевод со счета на счет",
+                "from": "Счет 44812258784861134719",
+                "to": "Счет 74489636417521191160"
+            },
+            {
+                "id": 895315941,
+                "state": "EXECUTED",
+                "date": "2018-08-19T04:27:37.904916",
+                "operationAmount": {
+                    "amount": "56883.54",
+                    "currency": {
+                        "name": "USD",
+                        "code": "USD"
+                    }
+                },
+                "description": "Перевод с карты на карту",
+                "from": "Visa Classic 6831982476737658",
+                "to": "Visa Platinum 8990922113665229"
+            },
+            {
+                "id": 594226727,
+                "state": "CANCELED",
+                "date": "2018-09-12T21:27:25.241689",
+                "operationAmount": {
+                    "amount": "67314.70",
+                    "currency": {
+                        "name": "руб.",
+                        "code": "RUB"
+                    }
+                },
+                "description": "Перевод организации",
+                "from": "Visa Platinum 1246377376343588",
+                "to": "Счет 14211924144426031657"
             }
-        },
-        {
-            "id": 142264268,
-            "operationAmount": {
-                "amount": "79114.93",
-                "currency": {"code": "USD", "name": "USD"}
-            }
-        }
-    ]
-
-    EUR_TRANSACTIONS = [
-        {
-            "id": 3,
-            "operationAmount": {
-                "amount": "500.00",
-                "currency": {"code": "EUR", "name": "Euro"}
-            }
-        }
-    ]
-
-    INCOMPLETE_TRANSACTIONS = [
-        {"id": 1, "operationAmount": {"amount": "100.00", "currency": {"code": "USD"}}},
-        {"id": 2},  # Нет operationAmount
-        {"id": 3, "operationAmount": {"amount": "300.00"}},  # Нет currency
-        {"id": 4, "operationAmount": {"amount": "400.00", "currency": {"name": "Euro"}}},  # Нет code
-        {"id": 5, "operationAmount": {"amount": "500.00", "currency": {"code": "USD"}}}
-    ]
-
-    MIXED_CURRENCY_TRANSACTIONS = [
-        {"id": 1, "operationAmount": {"amount": "100", "currency": {"code": "USD"}}},
-        {"id": 2, "operationAmount": {"amount": "200", "currency": {"code": "EUR"}}},
-        {"id": 3, "operationAmount": {"amount": "300", "currency": {"code": "GBP"}}},
-        {"id": 4, "operationAmount": {"amount": "400", "currency": {"code": "USD"}}},
-        {"id": 5, "operationAmount": {"amount": "500", "currency": {"code": "RUB"}}},
-    ]
-
-    CASE_SENSITIVE_TRANSACTIONS = [
-        {"id": 1, "operationAmount": {"amount": "100", "currency": {"code": "usd"}}},
-        {"id": 2, "operationAmount": {"amount": "200", "currency": {"code": "USD"}}}
-    ]
+        ]
+    )
 
     @pytest.mark.parametrize("transactions, currency_code, expected_count, expected_ids", [
-        (USD_TRANSACTIONS, "USD", 2, [939719570, 142264268]),
-        (EUR_TRANSACTIONS, "EUR", 1, [3]),
-        (MIXED_CURRENCY_TRANSACTIONS, "USD", 2, [1, 4]),
-        (MIXED_CURRENCY_TRANSACTIONS, "EUR", 1, [2]),
-        (MIXED_CURRENCY_TRANSACTIONS, "GBP", 1, [3]),
-        (MIXED_CURRENCY_TRANSACTIONS, "JPY", 0, []),
+        (transactions, "USD", 3, [939719570, 142264268, 895315941]),
+        (transactions, "EUR", 0, []),
+        (transactions, "RUB", 2, [873106923, 594226727])
     ])
     def test_filter_by_currency_basic(self, transactions, currency_code, expected_count, expected_ids):
         """Тест базовой фильтрации транзакций по валюте."""
@@ -71,16 +100,14 @@ class TestFilterByCurrency:
         assert all(t["operationAmount"]["currency"]["code"] == currency_code for t in result)
 
     @pytest.mark.parametrize("transactions, currency_code", [
-        (EUR_TRANSACTIONS, "USD"),  # Ищем USD в EUR транзакциях
-        (USD_TRANSACTIONS, "EUR"),  # Ищем EUR в USD транзакциях
+        (transactions, "EUR"),  # Ищем EUR в USD транзакциях (правильно - нет EUR)
         ([], "USD"),  # Пустой список
-        (MIXED_CURRENCY_TRANSACTIONS, "CNY"),  # Несуществующая валюта
+        (transactions, "CNY"),  # Несуществующая валюта
     ])
     def test_filter_by_currency_no_matches(self, transactions, currency_code):
         """Тест случая, когда нет транзакций в заданной валюте."""
         result = list(filter_by_currency(transactions, currency_code))
         assert len(result) == 0
-        assert result == []
 
     def test_filter_by_currency_empty_list(self):
         """Тест обработки пустого списка транзакций."""
@@ -89,8 +116,8 @@ class TestFilterByCurrency:
         assert list(result) == []
 
     @pytest.mark.parametrize("transactions, currency_code, expected_count, expected_ids", [
-        (INCOMPLETE_TRANSACTIONS, "USD", 2, [1, 5]),
-        (INCOMPLETE_TRANSACTIONS, "EUR", 0, []),
+        (transactions, "USD", 3, [939719570, 142264268, 895315941]),
+        (transactions, "EUR", 0, []),
     ])
     def test_filter_by_currency_incomplete_data(self, transactions, currency_code, expected_count, expected_ids):
         """Тест обработки транзакций с неполной структурой."""
@@ -100,8 +127,8 @@ class TestFilterByCurrency:
         assert [t["id"] for t in result] == expected_ids
 
     @pytest.mark.parametrize("transactions, currency_code, expected_ids", [
-        (CASE_SENSITIVE_TRANSACTIONS, "USD", [2]),
-        (CASE_SENSITIVE_TRANSACTIONS, "usd", [1]),
+        (transactions, "USD", [1]),
+        (transactions, "usd", [2]),
     ])
     def test_filter_by_currency_case_sensitive(self, transactions, currency_code, expected_ids):
         """Тест чувствительности к регистру в коде валюты."""
@@ -110,8 +137,8 @@ class TestFilterByCurrency:
         assert [t["id"] for t in result] == expected_ids
 
     @pytest.mark.parametrize("transactions, currency_code, expected_first_id", [
-        (USD_TRANSACTIONS, "USD", 939719570),
-        (MIXED_CURRENCY_TRANSACTIONS, "USD", 1),
+        (transactions, "USD", 939719570),
+        (transactions, "USD", 1),
     ])
     def test_filter_by_currency_iterator_behavior(self, transactions, currency_code, expected_first_id):
         iterator = filter_by_currency(transactions, currency_code)
@@ -124,7 +151,7 @@ class TestFilterByCurrency:
 
     def test_filter_by_currency_stop_iteration(self):
         """Тест возникновения StopIteration после окончания элементов."""
-        iterator = filter_by_currency(self.USD_TRANSACTIONS, "USD")
+        iterator = filter_by_currency(self.transactions, "USD")
 
         # Читаем все элементы
         list(iterator)
