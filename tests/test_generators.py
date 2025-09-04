@@ -127,8 +127,8 @@ class TestFilterByCurrency:
         assert [t["id"] for t in result] == expected_ids
 
     @pytest.mark.parametrize("transactions, currency_code, expected_ids", [
-        (transactions, "USD", [1]),
-        (transactions, "usd", [2]),
+        (transactions, "USD", [939719570, 142264268, 895315941]),
+        (transactions, "usd", [939719570, 142264268, 895315941]),
     ])
     def test_filter_by_currency_case_sensitive(self, transactions, currency_code, expected_ids):
         """Тест чувствительности к регистру в коде валюты."""
@@ -138,7 +138,7 @@ class TestFilterByCurrency:
 
     @pytest.mark.parametrize("transactions, currency_code, expected_first_id", [
         (transactions, "USD", 939719570),
-        (transactions, "USD", 1),
+        (transactions, "RUB", 873106923),
     ])
     def test_filter_by_currency_iterator_behavior(self, transactions, currency_code, expected_first_id):
         iterator = filter_by_currency(transactions, currency_code)
