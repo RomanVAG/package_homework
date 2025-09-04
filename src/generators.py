@@ -1,17 +1,20 @@
 def filter_by_currency(transactions, currency_code):
     """
-        Фильтрует транзакции по коду валюты и возвращает итератор.
+    Фильтрует транзакции по коду валюты и возвращает итератор.
+    Нечувствительна к регистру.
 
-        Args:
-            transactions: список словарей с транзакциями
-            currency_code: код валюты для фильтрации (например, "USD")
+    Args:
+        transactions: список словарей с транзакциями
+        currency_code: код валюты для фильтрации (например, "USD")
 
-        Returns:
-            итератор, который выдает транзакции с указанной валютой
+    Returns:
+        итератор, который выдает транзакции с указанной валютой
     """
+    currency_code_normalized = currency_code.upper()  # Приводим к верхнему регистру
     for transaction in transactions:
         # Используем вложенные get() с значениями по умолчанию
-        if transaction.get('operationAmount', {}).get('currency', {}).get('code') == currency_code:
+        transaction_currency = transaction.get('operationAmount', {}).get('currency', {}).get('code')
+        if transaction_currency and transaction_currency.upper() == currency_code_normalized:
             yield transaction
 
 
