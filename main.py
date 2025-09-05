@@ -1,6 +1,6 @@
-from src.widget import get_date, mask_account_card
+from src.generators import card_number_generator, filter_by_currency, transaction_descriptions
 from src.processing import filter_by_state, sort_by_date
-from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
+from src.widget import get_date, mask_account_card
 
 """Демонстрация работы модуля "widget" функции "mask_account_card" с транзакциями."""
 print(mask_account_card("Счет 64686473678894779589"))  # Счет **9589
