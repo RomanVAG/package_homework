@@ -13,7 +13,7 @@ def filter_by_currency(transactions, currency_code):
     currency_code_normalized = currency_code.upper()  # Приводим к верхнему регистру
     for transaction in transactions:
         # Используем вложенные get() с значениями по умолчанию
-        transaction_currency = transaction.get('operationAmount', {}).get('currency', {}).get('code')
+        transaction_currency = transaction.get("operationAmount", {}).get("currency", {}).get("code")
         if transaction_currency and transaction_currency.upper() == currency_code_normalized:
             yield transaction
 
@@ -30,8 +30,8 @@ def transaction_descriptions(transactions):
     """
     for transaction in transactions:
         # Проверяем наличие ключа 'description' в транзакции
-        if 'description' in transaction:
-            yield transaction['description']
+        if "description" in transaction:
+            yield transaction["description"]
 
 
 def card_number_generator(start, stop):
