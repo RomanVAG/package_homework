@@ -3,13 +3,13 @@ from src.processing import filter_by_state, sort_by_date
 from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
 
 """Демонстрация работы модуля "widget" функции "mask_account_card" с транзакциями."""
-print(mask_account_card("Счет 64686473678894779589")) # Счет **9589
-print(mask_account_card("Maestro 1596837868705199")) # Maestro 1596 83** **** 5199
-print(mask_account_card("MasterCard 7158300734726758")) # MasterCard 7158 30** **** 6758
-print(mask_account_card("Счет 35383033474447895560")) # Счет **5560
+print(mask_account_card("Счет 64686473678894779589"))  # Счет **9589
+print(mask_account_card("Maestro 1596837868705199"))  # Maestro 1596 83** **** 5199
+print(mask_account_card("MasterCard 7158300734726758"))  # MasterCard 7158 30** **** 6758
+print(mask_account_card("Счет 35383033474447895560"))  # Счет **5560
 
 """Демонстрация работы модуля "widget" функции "get_date"."""
-print(get_date("2024-03-11T02:26:18.671407")) # 11.03.2024
+print(get_date("2024-03-11T02:26:18.671407"))  # 11.03.2024
 
 transactions = [
     {"id": 41428829, "state": "EXECUTED", "date": "2019-07-03T18:35:29.512364"},
@@ -130,4 +130,3 @@ for _ in range(5):
 print("Генератор генерирующий номера карт в заданном диапазоне от 0000 0000 0000 0001 до 9999 9999 9999 9999:")
 for card_number in card_number_generator(1, 5):
     print(card_number)
-

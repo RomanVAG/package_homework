@@ -1,5 +1,8 @@
-import pytest, types
-from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
+import pytest
+import types
+from src.generators import filter_by_currency
+from src.generators import transaction_descriptions
+from src.generators import card_number_generator
 
 
 class TestFilterByCurrency:
@@ -200,13 +203,13 @@ class TestTransactionDescriptions:
         ([{'description': 'Test'}], ['Test']),
         ([{'amount': 100}], []),
         ([
-             {'description': 'First', 'amount': 100},
-             {'description': 'Second', 'amount': 200}
+         {'description': 'First', 'amount': 100},
+         {'description': 'Second', 'amount': 200}
          ], ['First', 'Second']),
         ([
-             {'description': 'First'},
-             {'amount': 200},
-             {'description': 'Third'}
+         {'description': 'First'},
+         {'amount': 200},
+         {'description': 'Third'}
          ], ['First', 'Third'])
     ]
 
