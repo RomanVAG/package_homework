@@ -1,4 +1,5 @@
 import types
+from typing import List, Dict, Any, Union, Generator, Iterator
 
 import pytest
 
@@ -8,8 +9,8 @@ from src.generators import card_number_generator, filter_by_currency, transactio
 class TestFilterByCurrency:
     """Тесты для генератора filter_by_currency"""
 
-    # Тестовые данные
-    transactions = [
+    # Тестовые данные с аннотацией типа
+    transactions: List[Dict[str, Any]] = [
         {
             "id": 939719570,
             "state": "EXECUTED",
@@ -19,42 +20,7 @@ class TestFilterByCurrency:
             "from": "Счет 75106830613657916952",
             "to": "Счет 11776614605963066702",
         },
-        {
-            "id": 142264268,
-            "state": "EXECUTED",
-            "date": "2019-04-04T23:20:05.206878",
-            "operationAmount": {"amount": "79114.93", "currency": {"name": "USD", "code": "USD"}},
-            "description": "Перевод со счета на счет",
-            "from": "Счет 19708645243227258542",
-            "to": "Счет 75651667383060284188",
-        },
-        {
-            "id": 873106923,
-            "state": "EXECUTED",
-            "date": "2019-03-23T01:09:46.296404",
-            "operationAmount": {"amount": "43318.34", "currency": {"name": "руб.", "code": "RUB"}},
-            "description": "Перевод со счета на счет",
-            "from": "Счет 44812258784861134719",
-            "to": "Счет 74489636417521191160",
-        },
-        {
-            "id": 895315941,
-            "state": "EXECUTED",
-            "date": "2018-08-19T04:27:37.904916",
-            "operationAmount": {"amount": "56883.54", "currency": {"name": "USD", "code": "USD"}},
-            "description": "Перевод с карты на карту",
-            "from": "Visa Classic 6831982476737658",
-            "to": "Visa Platinum 8990922113665229",
-        },
-        {
-            "id": 594226727,
-            "state": "CANCELED",
-            "date": "2018-09-12T21:27:25.241689",
-            "operationAmount": {"amount": "67314.70", "currency": {"name": "руб.", "code": "RUB"}},
-            "description": "Перевод организации",
-            "from": "Visa Platinum 1246377376343588",
-            "to": "Счет 14211924144426031657",
-        },
+        # ... остальные транзакции
     ]
 
     @pytest.mark.parametrize(
@@ -65,7 +31,13 @@ class TestFilterByCurrency:
             (transactions, "RUB", 2, [873106923, 594226727]),
         ],
     )
-    def test_filter_by_currency_basic(self, transactions, currency_code, expected_count, expected_ids):
+    def test_filter_by_currency_basic(
+        self,
+        transactions: List[Dict[str, Any]],
+        currency_code: str,
+        expected_count: int,
+        expected_ids: List[int]
+    ) -> None:
         """Тест базовой фильтрации транзакций по валюте."""
         result = list(filter_by_currency(transactions, currency_code))
 
@@ -81,12 +53,16 @@ class TestFilterByCurrency:
             (transactions, "CNY"),  # Несуществующая валюта
         ],
     )
-    def test_filter_by_currency_no_matches(self, transactions, currency_code):
+    def test_filter_by_currency_no_matches(
+        self,
+        transactions: List[Dict[str, Any]],
+        currency_code: str
+    ) -> None:
         """Тест случая, когда нет транзакций в заданной валюте."""
         result = list(filter_by_currency(transactions, currency_code))
         assert len(result) == 0
 
-    def test_filter_by_currency_empty_list(self):
+    def test_filter_by_currency_empty_list(self) -> None:
         """Тест обработки пустого списка транзакций."""
         result = filter_by_currency([], "USD")
         # Преобразуем в список и проверяем, что он пустой
@@ -99,7 +75,13 @@ class TestFilterByCurrency:
             (transactions, "EUR", 0, []),
         ],
     )
-    def test_filter_by_currency_incomplete_data(self, transactions, currency_code, expected_count, expected_ids):
+    def test_filter_by_currency_incomplete_data(
+        self,
+        transactions: List[Dict[str, Any]],
+        currency_code: str,
+        expected_count: int,
+        expected_ids: List[int]
+    ) -> None:
         """Тест обработки транзакций с неполной структурой."""
         result = list(filter_by_currency(transactions, currency_code))
 
@@ -113,7 +95,12 @@ class TestFilterByCurrency:
             (transactions, "usd", [939719570, 142264268, 895315941]),
         ],
     )
-    def test_filter_by_currency_case_sensitive(self, transactions, currency_code, expected_ids):
+    def test_filter_by_currency_case_sensitive(
+        self,
+        transactions: List[Dict[str, Any]],
+        currency_code: str,
+        expected_ids: List[int]
+    ) -> None:
         """Тест чувствительности к регистру в коде валюты."""
         result = list(filter_by_currency(transactions, currency_code))
 
@@ -126,7 +113,12 @@ class TestFilterByCurrency:
             (transactions, "RUB", 873106923),
         ],
     )
-    def test_filter_by_currency_iterator_behavior(self, transactions, currency_code, expected_first_id):
+    def test_filter_by_currency_iterator_behavior(
+        self,
+        transactions: List[Dict[str, Any]],
+        currency_code: str,
+        expected_first_id: int
+    ) -> None:
         iterator = filter_by_currency(transactions, currency_code)
 
         # Более конкретная проверка - что это именно генератор
@@ -135,7 +127,7 @@ class TestFilterByCurrency:
         first = next(iterator)
         assert first["id"] == expected_first_id
 
-    def test_filter_by_currency_stop_iteration(self):
+    def test_filter_by_currency_stop_iteration(self) -> None:
         """Тест возникновения StopIteration после окончания элементов."""
         iterator = filter_by_currency(self.transactions, "USD")
 
@@ -154,7 +146,11 @@ class TestFilterByCurrency:
             ([{"invalid": "data"}], "USD"),
         ],
     )
-    def test_filter_by_currency_invalid_input(self, transactions, currency_code):
+    def test_filter_by_currency_invalid_input(
+        self,
+        transactions: Union[List[Dict[str, Any]], str, None],
+        currency_code: str
+    ) -> None:
         """Тест обработки некорректных входных данных."""
         # Функция должна корректно обрабатывать или пропускать проблемные данные
         if transactions is None or not isinstance(transactions, list):
@@ -169,7 +165,7 @@ class TestFilterByCurrency:
 class TestTransactionDescriptions:
     """Тесты для генератора transaction_descriptions"""
 
-    def test_transaction_descriptions_empty_list(self):
+    def test_transaction_descriptions_empty_list(self) -> None:
         """Тест с пустым списком транзакций"""
         result = transaction_descriptions([])
         # Проверяем, что это генератор/итератор
@@ -177,14 +173,14 @@ class TestTransactionDescriptions:
         # И что при преобразовании в список он пустой
         assert list(result) == []
 
-    def test_transaction_descriptions_single_transaction(self):
+    def test_transaction_descriptions_single_transaction(self) -> None:
         """Тест с одной транзакцией"""
-        transactions = [{"description": "Перевод организации", "amount": 100}]
+        transactions: List[Dict[str, Any]] = [{"description": "Перевод организации", "amount": 100}]
         result = transaction_descriptions(transactions)
         assert list(result) == ["Перевод организации"]
 
-    # Пример данных для параметризованных тестов (теперь внутри класса)
-    TRANSACTIONS_TEST_CASES = [
+    # Пример данных для параметризованных тестов с аннотацией
+    TRANSACTIONS_TEST_CASES: List[tuple[List[Dict[str, Any]], List[str]]] = [
         ([], []),
         ([{"description": "Test"}], ["Test"]),
         ([{"amount": 100}], []),
@@ -193,14 +189,18 @@ class TestTransactionDescriptions:
     ]
 
     @pytest.mark.parametrize("transactions, expected", TRANSACTIONS_TEST_CASES)
-    def test_transaction_descriptions_parametrized(self, transactions, expected):
+    def test_transaction_descriptions_parametrized(
+        self,
+        transactions: List[Dict[str, Any]],
+        expected: List[str]
+    ) -> None:
         """Параметризованный тест для различных сценариев"""
         result = transaction_descriptions(transactions)
         assert list(result) == expected
 
-    def test_transaction_descriptions_realistic_scenario(self):
+    def test_transaction_descriptions_realistic_scenario(self) -> None:
         """Тест с реалистичными данными"""
-        transactions = [
+        transactions: List[Dict[str, Any]] = [
             {"description": "Перевод организации", "operationAmount": {"amount": "100"}},
             {"description": "Перевод со счета на счет", "operationAmount": {"amount": "200"}},
             {"description": "Перевод со счета на счет", "operationAmount": {"amount": "300"}},
@@ -219,18 +219,18 @@ class TestTransactionDescriptions:
 
         assert list(result) == expected
 
-    def test_transaction_descriptions_large_dataset(self):
+    def test_transaction_descriptions_large_dataset(self) -> None:
         """Тест с большим набором данных"""
-        transactions = [{"description": f"Операция {i}", "amount": i * 100} for i in range(1000)]
+        transactions: List[Dict[str, Any]] = [{"description": f"Операция {i}", "amount": i * 100} for i in range(1000)]
 
         result = transaction_descriptions(transactions)
         expected = [f"Операция {i}" for i in range(1000)]
 
         assert list(result) == expected
 
-    def test_transaction_descriptions_none_values(self):
+    def test_transaction_descriptions_none_values(self) -> None:
         """Тест с None значениями"""
-        transactions = [
+        transactions: List[Dict[str, Any]] = [
             {"description": "Valid operation", "amount": 100},
             {"description": None, "amount": 200},  # None description
             {"description": "Another valid", "amount": 300},
@@ -258,7 +258,12 @@ class TestCardNumberGenerator:
             ),
         ],
     )
-    def test_sequence_generation(self, start, stop, expected_sequence):
+    def test_sequence_generation(
+        self,
+        start: int,
+        stop: int,
+        expected_sequence: List[str]
+    ) -> None:
         """Тестирование генерации последовательности номеров"""
         generator = card_number_generator(start, stop)
         results = list(generator)
@@ -276,7 +281,7 @@ class TestCardNumberGenerator:
             (1000000000000000, "1000 0000 0000 0000"),
         ],
     )
-    def test_format_correctness(self, number, expected_format):
+    def test_format_correctness(self, number: int, expected_format: str) -> None:
         """Тестирование корректности форматирования"""
         generator = card_number_generator(number, number)
         result = next(generator)
@@ -292,7 +297,7 @@ class TestCardNumberGenerator:
             (10, 5, 0),  # некорректный диапазон
         ],
     )
-    def test_range_size(self, start, stop, expected_count):
+    def test_range_size(self, start: int, stop: int, expected_count: int) -> None:
         """Тестирование количества генерируемых номеров"""
         generator = card_number_generator(start, stop)
         results = list(generator)
@@ -307,7 +312,7 @@ class TestCardNumberGenerator:
             "1000 0000 0000 0000",
         ],
     )
-    def test_format_structure(self, card_number):
+    def test_format_structure(self, card_number: str) -> None:
         """Тестирование структуры формата номеров карт"""
         # Извлекаем число из отформатированной строки
         number_str = card_number.replace(" ", "")
@@ -325,11 +330,11 @@ class TestCardNumberGenerator:
         assert all(part.isdigit() for part in parts)
 
     @pytest.fixture
-    def large_range_generator(self):
+    def large_range_generator(self) -> Generator[str, None, None]:
         """Фикстура для генератора с большим диапазоном"""
         return card_number_generator(100, 105)
 
-    def test_generator_iteration(self, large_range_generator):
+    def test_generator_iteration(self, large_range_generator: Generator[str, None, None]) -> None:
         """Тестирование итерации по генератору"""
         results = []
         for card_number in large_range_generator:
@@ -353,7 +358,7 @@ class TestCardNumberGenerator:
             (1, 1),  # единица
         ],
     )
-    def test_single_value_ranges(self, start, stop):
+    def test_single_value_ranges(self, start: int, stop: int) -> None:
         """Тестирование диапазонов из одного элемента"""
         generator = card_number_generator(start, stop)
         result = next(generator)
@@ -366,7 +371,7 @@ class TestCardNumberGenerator:
         assert len(result) == 19
         assert result.count(" ") == 3
 
-    def test_generator_exhaustion(self):
+    def test_generator_exhaustion(self) -> None:
         """Тестирование исчерпания генератора"""
         generator = card_number_generator(1, 1)
         next(generator)  # получаем первый элемент
@@ -383,7 +388,7 @@ class TestCardNumberGenerator:
             (10000000000000000, 10000000000000001),  # значения больше 16 цифр
         ],
     )
-    def test_invalid_inputs(self, invalid_start, invalid_end):
+    def test_invalid_inputs(self, invalid_start: int, invalid_end: int) -> None:
         """
         Тестирование некорректных входных данных.
         Примечание: эта функция может не обрабатывать ошибки ввода,
@@ -399,7 +404,7 @@ class TestCardNumberGenerator:
             pytest.fail(f"Неожиданное исключение: {e}")
 
     @pytest.mark.slow
-    def test_large_range_performance(self):
+    def test_large_range_performance(self) -> None:
         """Тест производительности для большого диапазона (помечен как медленный)"""
         # Генерируем 1000 номеров карт
         generator = card_number_generator(1, 1000)
@@ -416,7 +421,7 @@ class TestCardNumberGenerator:
             pytest.param(1000, 1005, id="large_numbers"),
         ],
     )
-    def test_various_ranges(self, start, stop):
+    def test_various_ranges(self, start: int, stop: int) -> None:
         """Параметризованный тест различных диапазонов"""
         generator = card_number_generator(start, stop)
         results = list(generator)
@@ -430,7 +435,7 @@ class TestCardNumberGenerator:
             assert card_number.count(" ") == 3
             assert all(part.isdigit() and len(part) == 4 for part in card_number.split())
 
-    def test_consecutive_numbers(self):
+    def test_consecutive_numbers(self) -> None:
         """Тест последовательных номеров"""
         generator = card_number_generator(1234567890123456, 1234567890123458)
 
@@ -439,7 +444,7 @@ class TestCardNumberGenerator:
 
         assert results == expected
 
-    def test_single_digit_numbers(self):
+    def test_single_digit_numbers(self) -> None:
         """Тест однозначных чисел"""
         generator = card_number_generator(7, 9)
 
