@@ -115,10 +115,10 @@ transactions = (
 
 """Демонстрация работы модуля "generators" функции "filter_by_currency"."""
 print("Отсортированные транзакции по коду валюты:")
-currency_iterator = filter_by_currency(transactions, "USD") #Создаем итератор транзакций по коду валюты
+usd_transactions = filter_by_currency(transactions, "USD")
+for _ in range(2):
+    print(next(usd_transactions))
 
-for i, transaction in enumerate(currency_iterator, 1): #Обрабатываем по одной транзакции
-    print(f"{i}. {transaction}")
 
 """Демонстрация работы модуля "generators" функции "transaction_descriptions"."""
 
