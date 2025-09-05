@@ -267,7 +267,7 @@ class TestTransactionDescriptions:
 class TestCardNumberGenerator:
     """Тесты для генератора номеров банковских карт"""
 
-    @pytest.mark.parametrize("start,end,expected_sequence", [
+    @pytest.mark.parametrize("start,stop,expected_sequence", [
         (1, 3, ["0000 0000 0000 0001", "0000 0000 0000 0002", "0000 0000 0000 0003"]),
         (0, 0, ["0000 0000 0000 0000"]),
         (9999999999999997, 9999999999999999, [
@@ -276,9 +276,9 @@ class TestCardNumberGenerator:
             "9999 9999 9999 9999"
         ]),
     ])
-    def test_sequence_generation(self, start, end, expected_sequence):
+    def test_sequence_generation(self, start, stop, expected_sequence):
         """Тестирование генерации последовательности номеров"""
-        generator = card_number_generator(start, end)
+        generator = card_number_generator(start, stop)
         results = list(generator)
         assert results == expected_sequence
 
@@ -297,16 +297,16 @@ class TestCardNumberGenerator:
         result = next(generator)
         assert result == expected_format
 
-    @pytest.mark.parametrize("start,end,expected_count", [
+    @pytest.mark.parametrize("start,stop,expected_count", [
         (1, 10, 10),
         (100, 105, 6),
         (0, 0, 1),
         (999, 999, 1),
         (10, 5, 0),  # некорректный диапазон
     ])
-    def test_range_size(self, start, end, expected_count):
+    def test_range_size(self, start, stop, expected_count):
         """Тестирование количества генерируемых номеров"""
-        generator = card_number_generator(start, end)
+        generator = card_number_generator(start, stop)
         results = list(generator)
         assert len(results) == expected_count
 
@@ -354,14 +354,14 @@ class TestCardNumberGenerator:
         ]
         assert results == expected
 
-    @pytest.mark.parametrize("start,end", [
+    @pytest.mark.parametrize("start,stop", [
         (9999999999999999, 9999999999999999),  # максимальное значение
         (0, 0),  # минимальное значение
         (1, 1),  # единица
     ])
-    def test_single_value_ranges(self, start, end):
+    def test_single_value_ranges(self, start, stop):
         """Тестирование диапазонов из одного элемента"""
-        generator = card_number_generator(start, end)
+        generator = card_number_generator(start, stop)
         result = next(generator)
 
         # Проверяем, что генератор завершается после одного элемента
@@ -411,17 +411,17 @@ class TestCardNumberGenerator:
         assert results[0] == "0000 0000 0000 0001"
         assert results[-1] == "0000 0000 0000 1000"
 
-    @pytest.mark.parametrize("start,end", [
+    @pytest.mark.parametrize("start,stop", [
         pytest.param(5, 10, id="small_range"),
         pytest.param(100, 110, id="medium_range"),
         pytest.param(1000, 1005, id="large_numbers"),
     ])
-    def test_various_ranges(self, start, end):
+    def test_various_ranges(self, start, stop):
         """Параметризованный тест различных диапазонов"""
-        generator = card_number_generator(start, end)
+        generator = card_number_generator(start, stop)
         results = list(generator)
 
-        expected_count = end - start + 1
+        expected_count = stop - start + 1
         assert len(results) == expected_count
 
         # Проверяем, что все номера имеют правильный формат
