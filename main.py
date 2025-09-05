@@ -121,7 +121,10 @@ for _ in range(2):
 
 
 """Демонстрация работы модуля "generators" функции "transaction_descriptions"."""
-
+print("Отсортированные транзакции по описанию:")
+descriptions = transaction_descriptions(transactions)
+for _ in range(5):
+    print(next(descriptions))
 
 """Демонстрация работы модуля "generators" функции "card_number_generator"."""
 
