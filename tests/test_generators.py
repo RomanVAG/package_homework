@@ -1,5 +1,5 @@
 import types
-from typing import List, Dict, Any, Union, Generator, Iterator
+from typing import List, Dict, Any, Union, Generator
 
 import pytest
 
@@ -20,7 +20,42 @@ class TestFilterByCurrency:
             "from": "Счет 75106830613657916952",
             "to": "Счет 11776614605963066702",
         },
-        # ... остальные транзакции
+        {
+            "id": 142264268,
+            "state": "EXECUTED",
+            "date": "2019-04-04T23:20:05.206878",
+            "operationAmount": {"amount": "79114.93", "currency": {"name": "USD", "code": "USD"}},
+            "description": "Перевод со счета на счет",
+            "from": "Счет 19708645243227258542",
+            "to": "Счет 75651667383060284188",
+        },
+        {
+            "id": 873106923,
+            "state": "EXECUTED",
+            "date": "2019-03-23T01:09:46.296404",
+            "operationAmount": {"amount": "43318.34", "currency": {"name": "руб.", "code": "RUB"}},
+            "description": "Перевод со счета на счет",
+            "from": "Счет 44812258784861134719",
+            "to": "Счет 74489636417521191160",
+        },
+        {
+            "id": 895315941,
+            "state": "EXECUTED",
+            "date": "2018-08-19T04:27:37.904916",
+            "operationAmount": {"amount": "56883.54", "currency": {"name": "USD", "code": "USD"}},
+            "description": "Перевод с карты на карту",
+            "from": "Visa Classic 6831982476737658",
+            "to": "Visa Platinum 8990922113665229",
+        },
+        {
+            "id": 594226727,
+            "state": "CANCELED",
+            "date": "2018-09-12T21:27:25.241689",
+            "operationAmount": {"amount": "67314.70", "currency": {"name": "руб.", "code": "RUB"}},
+            "description": "Перевод организации",
+            "from": "Visa Platinum 1246377376343588",
+            "to": "Счет 14211924144426031657",
+        },
     ]
 
     @pytest.mark.parametrize(
@@ -32,11 +67,7 @@ class TestFilterByCurrency:
         ],
     )
     def test_filter_by_currency_basic(
-        self,
-        transactions: List[Dict[str, Any]],
-        currency_code: str,
-        expected_count: int,
-        expected_ids: List[int]
+        self, transactions: List[Dict[str, Any]], currency_code: str, expected_count: int, expected_ids: List[int]
     ) -> None:
         """Тест базовой фильтрации транзакций по валюте."""
         result = list(filter_by_currency(transactions, currency_code))
@@ -53,11 +84,7 @@ class TestFilterByCurrency:
             (transactions, "CNY"),  # Несуществующая валюта
         ],
     )
-    def test_filter_by_currency_no_matches(
-        self,
-        transactions: List[Dict[str, Any]],
-        currency_code: str
-    ) -> None:
+    def test_filter_by_currency_no_matches(self, transactions: List[Dict[str, Any]], currency_code: str) -> None:
         """Тест случая, когда нет транзакций в заданной валюте."""
         result = list(filter_by_currency(transactions, currency_code))
         assert len(result) == 0
@@ -76,11 +103,7 @@ class TestFilterByCurrency:
         ],
     )
     def test_filter_by_currency_incomplete_data(
-        self,
-        transactions: List[Dict[str, Any]],
-        currency_code: str,
-        expected_count: int,
-        expected_ids: List[int]
+        self, transactions: List[Dict[str, Any]], currency_code: str, expected_count: int, expected_ids: List[int]
     ) -> None:
         """Тест обработки транзакций с неполной структурой."""
         result = list(filter_by_currency(transactions, currency_code))
@@ -96,10 +119,7 @@ class TestFilterByCurrency:
         ],
     )
     def test_filter_by_currency_case_sensitive(
-        self,
-        transactions: List[Dict[str, Any]],
-        currency_code: str,
-        expected_ids: List[int]
+        self, transactions: List[Dict[str, Any]], currency_code: str, expected_ids: List[int]
     ) -> None:
         """Тест чувствительности к регистру в коде валюты."""
         result = list(filter_by_currency(transactions, currency_code))
@@ -114,10 +134,7 @@ class TestFilterByCurrency:
         ],
     )
     def test_filter_by_currency_iterator_behavior(
-        self,
-        transactions: List[Dict[str, Any]],
-        currency_code: str,
-        expected_first_id: int
+        self, transactions: List[Dict[str, Any]], currency_code: str, expected_first_id: int
     ) -> None:
         iterator = filter_by_currency(transactions, currency_code)
 
@@ -147,9 +164,7 @@ class TestFilterByCurrency:
         ],
     )
     def test_filter_by_currency_invalid_input(
-        self,
-        transactions: Union[List[Dict[str, Any]], str, None],
-        currency_code: str
+        self, transactions: Union[List[Dict[str, Any]], str, None], currency_code: str
     ) -> None:
         """Тест обработки некорректных входных данных."""
         # Функция должна корректно обрабатывать или пропускать проблемные данные
@@ -190,9 +205,7 @@ class TestTransactionDescriptions:
 
     @pytest.mark.parametrize("transactions, expected", TRANSACTIONS_TEST_CASES)
     def test_transaction_descriptions_parametrized(
-        self,
-        transactions: List[Dict[str, Any]],
-        expected: List[str]
+        self, transactions: List[Dict[str, Any]], expected: List[str]
     ) -> None:
         """Параметризованный тест для различных сценариев"""
         result = transaction_descriptions(transactions)
@@ -258,12 +271,7 @@ class TestCardNumberGenerator:
             ),
         ],
     )
-    def test_sequence_generation(
-        self,
-        start: int,
-        stop: int,
-        expected_sequence: List[str]
-    ) -> None:
+    def test_sequence_generation(self, start: int, stop: int, expected_sequence: List[str]) -> None:
         """Тестирование генерации последовательности номеров"""
         generator = card_number_generator(start, stop)
         results = list(generator)
