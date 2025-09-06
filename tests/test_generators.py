@@ -1,5 +1,5 @@
 import types
-from typing import List, Dict, Any, Union, Generator
+from typing import Any, Dict, Generator, List, Union
 
 import pytest
 
