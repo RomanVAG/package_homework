@@ -1,7 +1,8 @@
-from time import time
+from typing import Optional, Callable, Any
+from datetime import datetime
 
 
-def log(func):
+def log(filename: Optional[str] = None) -> Callable:
     """
     Декоратор, который будет автоматически логировать начало и конец выполнения функции,
     а также ее результаты или возникшие ошибки. Декоратор должен принимать необязательный аргумент
@@ -12,11 +13,51 @@ def log(func):
     Имя функции, тип возникшей ошибки и входные параметры, если выполнение функции привело к ошибке.
     """
 
-    def wrapper(*args):
-        start_time = time()
-        result = func(*args)
-        end_time = time()
-        print(f"execution time: {end_time - start_time:.6f}")
-        return result
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            # Логируем начало выполнения
+            start_time = datetime.now()
+            start_message = f"{start_time.strftime('%Y-%m-%d %H:%M:%S')} - {func.__name__} started. args: {args}, kwargs: {kwargs}"
 
-    return wrapper
+            if filename:
+                with open(filename, 'a', encoding='utf-8') as file:
+                    file.write(start_message + '\n')
+            else:
+                print(start_message)
+
+            try:
+                # Выполняем исходную функцию
+                result = func(*args, **kwargs)
+                end_time = datetime.now()
+                execution_time = (end_time - start_time).total_seconds()
+
+                # Логируем успешное завершение
+                message = f"{end_time.strftime('%Y-%m-%d %H:%M:%S')} - {func.__name__} ok. Result: {result}. Execution time: {execution_time:.3f}s"
+
+                if filename:
+                    with open(filename, 'a', encoding='utf-8') as file:
+                        file.write(message + '\n')
+                else:
+                    print(message)
+
+                return result
+
+            except Exception as e:
+                end_time = datetime.now()
+                execution_time = (end_time - start_time).total_seconds()
+
+                # Логируем ошибку
+                message = f"{end_time.strftime('%Y-%m-%d %H:%M:%S')} - {func.__name__} error: {type(e).__name__}. args: {args}, kwargs: {kwargs}. Execution time: {execution_time:.3f}s"
+
+                if filename:
+                    with open(filename, 'a', encoding='utf-8') as file:
+                        file.write(message + '\n')
+                else:
+                    print(message)
+
+                # Пробрасываем исключение дальше
+                raise
+
+        return wrapper
+
+    return decorator
