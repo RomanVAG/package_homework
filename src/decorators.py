@@ -63,5 +63,11 @@ def log(filename: Optional[str] = None) -> Callable:
 
 
 @log()
-def my_function(x: int, y: int) -> int:
-    return x + y
+def add_numbers(a: int, b: int) -> int:
+    return a + b
+
+# Вызов функции
+result = add_numbers(5, 3)
+# Вывод в консоль:
+# 2024-01-15 14:30:25 - add_numbers started. args: (5, 3), kwargs: {}
+# 2024-01-15 14:30:25 - add_numbers ok. Result: 8. Execution time: 0.001s
