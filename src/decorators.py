@@ -61,3 +61,8 @@ def log(filename: Optional[str] = None) -> Callable:
         return wrapper
 
     return decorator
+
+
+@log()
+def my_function(x: int, y: int) -> int:
+    return x + y
