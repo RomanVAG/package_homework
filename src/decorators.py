@@ -4,70 +4,44 @@ from datetime import datetime
 
 def log(filename: Optional[str] = None) -> Callable:
     """
-    Декоратор, который будет автоматически логировать начало и конец выполнения функции,
-    а также ее результаты или возникшие ошибки. Декоратор должен принимать необязательный аргумент
-    filename, который определяет, куда будут записываться логи (в файл или в консоль):
-    Если filename задан, логи записываются в указанный файл. Если filename не задан, логи выводятся в консоль.
-    Логирование должно включать:Имя функции и результат выполнения при успешной операции.
-    Имя функции, тип возникшей ошибки и входные параметры, если выполнение функции привело к ошибке.
+    Декоратор log предназначен для автоматического логирования начала и конца выполнения функции,
+    а также её результатов или возникших ошибок. Этот декоратор принимает необязательный аргумент filename,
+    который определяет место записи логов: если filename задан, логи записываются в указанный файл,
+    в противном случае они выводятся в консоль. Логирование включает в себя имя функции
+    и результат выполнения при успешном завершении операции. В случае ошибки логирование фиксирует
+    имя функции, тип возникшей ошибки и входные параметры, переданные в функцию.
     """
-
-    def decorator(func: Callable) -> Callable:
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # Логируем начало выполнения
-            start_time = datetime.now()
-            start_message = f"{start_time.strftime('%Y-%m-%d %H:%M:%S')} - {func.__name__} started. args: {args}, kwargs: {kwargs}"
-
-            if filename:
-                with open(filename, 'a', encoding='utf-8') as file:
-                    file.write(start_message + '\n')
-            else:
-                print(start_message)
-
+    def decorator_func(func: Any) -> Any:
+        def wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Any | None:
+            start_time = datetime.now().replace(microsecond=0)  # время начала вызова функции
             try:
-                # Выполняем исходную функцию
-                result = func(*args, **kwargs)
-                end_time = datetime.now()
-                execution_time = (end_time - start_time).total_seconds()
+                # Рискованный код
+                func(*args, **kwargs)  # Вызов оригинальной функции
+                if filename:   # Если filename задан, логи записываются в указанный файл
+                    with open("mylog.txt", "a", encoding='utf-8') as _:  # Логирование информации об ошибке
+                        _.write(f"{start_time} {func.__name__} ok \n")
+                else: # Если файл не задан, логи выводятся в консоль
+                    print(f"{start_time} {func.__name__} ok \n")
+                return func # возврат оригинальной функции
 
-                # Логируем успешное завершение
-                message = f"{end_time.strftime('%Y-%m-%d %H:%M:%S')} - {func.__name__} ok. Result: {result}. Execution time: {execution_time:.3f}s"
-
-                if filename:
-                    with open(filename, 'a', encoding='utf-8') as file:
-                        file.write(message + '\n')
-                else:
-                    print(message)
-
-                return result
-
-            except Exception as e:
-                end_time = datetime.now()
-                execution_time = (end_time - start_time).total_seconds()
-
-                # Логируем ошибку
-                message = f"{end_time.strftime('%Y-%m-%d %H:%M:%S')} - {func.__name__} error: {type(e).__name__}. args: {args}, kwargs: {kwargs}. Execution time: {execution_time:.3f}s"
-
-                if filename:
-                    with open(filename, 'a', encoding='utf-8') as file:
-                        file.write(message + '\n')
-                else:
-                    print(message)
-
-                # Пробрасываем исключение дальше
-                raise
+            except Exception as e:  # Обработка ошибок
+                if filename: # Если filename задан, логи записываются в указанный файл
+                    with open("mylog.txt", "a", encoding='utf-8') as _:  # Логирование информацию об ошибке
+                        _.write(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs} \n")
+                else: # Если файл не задан, логи выводятся в консоль
+                    print(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs} \n")
 
         return wrapper
 
-    return decorator
+    return decorator_func
 
 
-@log()
-def add_numbers(a: int, b: int) -> int:
-    return a + b
+@log(filename="mylog.txt")
+def my_function(x, y):
+    return x + y
 
-# Вызов функции
-result = add_numbers(5, 3)
-# Вывод в консоль:
-# 2024-01-15 14:30:25 - add_numbers started. args: (5, 3), kwargs: {}
-# 2024-01-15 14:30:25 - add_numbers ok. Result: 8. Execution time: 0.001s
+
+my_function("7", 6)
+# # Вывод в консоль:
+# # 2024-01-15 14:30:25 - my_function error: тип ошибки. Inputs: (1, 2), {}
+# # 2024-01-15 14:30:25 - my_function ok
