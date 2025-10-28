@@ -1,5 +1,6 @@
 from typing import Optional, Callable, Any
 from datetime import datetime
+from functools import wraps
 
 
 def log(filename: Optional[str] = None) -> Callable:
@@ -11,25 +12,27 @@ def log(filename: Optional[str] = None) -> Callable:
     и результат выполнения при успешном завершении операции. В случае ошибки логирование фиксирует
     имя функции, тип возникшей ошибки и входные параметры, переданные в функцию.
     """
+
     def decorator_func(func: Any) -> Any:
+        @wraps(func)
         def wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Any | None:
-            start_time = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")  # время начала вызова функции
+            start_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")  # время начала вызова функции
             try:
                 # Рискованный код
                 result = func(*args, **kwargs)  # Вызов оригинальной функции
-                if filename:   # Если filename задан, логи записываются в указанный файл
+                if filename:  # Если filename задан, логи записываются в указанный файл
                     with open(filename, "a", encoding='utf-8') as _:  # Логирование информации об ошибке
-                        _.write(f"{start_time} {func.__name__} ok: {result} \n")
-                else: # Если файл не задан, логи выводятся в консоль
-                    print(f"{start_time} {func.__name__} ok: {result} \n")
-                return result # возврат оригинальной функции
+                        _.write(f"{start_time} {func.__name__} ok: {result}\n")
+                else:  # Если файл не задан, логи выводятся в консоль
+                    print(f"{start_time} {func.__name__} ok: {result}\n")
+                return result  # возврат оригинальной функции
 
             except Exception as e:  # Обработка ошибок
-                if filename: # Если filename задан, логи записываются в указанный файл
+                if filename:  # Если filename задан, логи записываются в указанный файл
                     with open(filename, "a", encoding='utf-8') as _:  # Логирование информацию об ошибке
-                        _.write(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs} \n")
-                else: # Если файл не задан, логи выводятся в консоль
-                    print(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs} \n")
+                        _.write(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n")
+                else:  # Если файл не задан, логи выводятся в консоль
+                    print(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n")
 
         return wrapper
 
@@ -43,5 +46,5 @@ def my_function(x, y):
 
 my_function(7, 6)
 # # Вывод в консоль:
-# # 2024-01-15 14:30:25 - my_function error: тип ошибки. Inputs: (1, 2), {}
-# # 2024-01-15 14:30:25 k- my_function o
+# # 2024/01/15 14:30:25 - my_function error: тип ошибки. Inputs: (1, 2), {}
+# # 2025/10/28 14:21:43 my_function ok: 13
