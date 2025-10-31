@@ -20,19 +20,21 @@ def log(filename: Optional[str] = None) -> Callable:
             try:
                 # Рискованный код
                 result = func(*args, **kwargs)  # Вызов оригинальной функции
+                log_message = f"{start_time} {func.__name__} ok: {result}\n"
                 if filename:  # Если filename задан, логи записываются в указанный файл
-                    with open(filename, "a", encoding='utf-8') as _:  # Логирование информации об ошибке
-                        _.write(f"{start_time} {func.__name__} ok: {result}\n")
+                    with open(filename, "a", encoding='utf-8') as file:  # Логирование информации об ошибке
+                        file.write(log_message)
                 else:  # Если файл не задан, логи выводятся в консоль
-                    print(f"{start_time} {func.__name__} ok: {result}\n")
+                    print(log_message)
                 return result  # возврат оригинальной функции
 
             except Exception as e:  # Обработка ошибок
+                log_message = f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n"
                 if filename:  # Если filename задан, логи записываются в указанный файл
-                    with open(filename, "a", encoding='utf-8') as _:  # Логирование информацию об ошибке
-                        _.write(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n")
+                    with open(filename, "a", encoding='utf-8') as file:  # Логирование информацию об ошибке
+                        file.write(log_message)
                 else:  # Если файл не задан, логи выводятся в консоль
-                    print(f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n")
+                    print(log_message)
 
         return wrapper
 
@@ -46,5 +48,5 @@ def my_function(x, y):
 
 my_function(7, 6)
 # # Вывод в консоль:
-# # 2024/01/15 14:30:25 - my_function error: тип ошибки. Inputs: (1, 2), {}
-# # 2025/10/28 14:21:43 my_function ok: 13
+# # 2025/10/28, 12:00:00 my_function error: тип ошибки. Inputs: (1, 2), {}
+# # 2025/10/28, 12:00:00 my_function ok: 13
