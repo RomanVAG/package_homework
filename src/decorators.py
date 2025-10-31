@@ -13,26 +13,26 @@ def log(filename: Optional[str] = None) -> Callable:
     имя функции, тип возникшей ошибки и входные параметры, переданные в функцию.
     """
 
-    def decorator_func(func: Any) -> Any:
+    def decorator_func(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args: tuple[Any], **kwargs: dict[str, Any]) -> Any | None:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             start_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")  # время начала вызова функции
             try:
                 # Рискованный код
                 result = func(*args, **kwargs)  # Вызов оригинальной функции
-                log_message = f"{start_time} {func.__name__} ok: {result}\n"
+                log_message = f"{start_time} {func.__name__} ok: {result}"
                 if filename:  # Если filename задан, логи записываются в указанный файл
                     with open(filename, "a", encoding='utf-8') as file:  # Логирование информации об ошибке
-                        file.write(log_message)
+                        file.write(log_message + "\n")
                 else:  # Если файл не задан, логи выводятся в консоль
                     print(log_message)
                 return result  # возврат оригинальной функции
 
             except Exception as e:  # Обработка ошибок
-                log_message = f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n"
+                log_message = f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}"
                 if filename:  # Если filename задан, логи записываются в указанный файл
                     with open(filename, "a", encoding='utf-8') as file:  # Логирование информацию об ошибке
-                        file.write(log_message)
+                        file.write(log_message + "\n")
                 else:  # Если файл не задан, логи выводятся в консоль
                     print(log_message)
 
