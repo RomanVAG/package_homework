@@ -20,21 +20,24 @@ def log(filename: Optional[str] = None) -> Callable:
             try:
                 # Рискованный код
                 result = func(*args, **kwargs)  # Вызов оригинальной функции
+                # Сообщение об успешном выполнении
                 log_message = f"{start_time} {func.__name__} ok: {result}"
                 if filename:  # Если filename задан, логи записываются в указанный файл
-                    with open(filename, "a", encoding='utf-8') as file:  # Логирование информации об ошибке
+                    with open(filename, "a", encoding='utf-8') as file:
                         file.write(log_message + "\n")
                 else:  # Если файл не задан, логи выводятся в консоль
-                    print(log_message)
+                    print(log_message)  # Успешное выполнение
                 return result  # возврат оригинальной функции
 
             except Exception as e:  # Обработка ошибок
+                # Сообщение об ошибке: записываем тип и входные данные
                 log_message = f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}"
                 if filename:  # Если filename задан, логи записываются в указанный файл
                     with open(filename, "a", encoding='utf-8') as file:  # Логирование информацию об ошибке
                         file.write(log_message + "\n")
                 else:  # Если файл не задан, логи выводятся в консоль
                     print(log_message)
+                raise  # Перебрасываем исключение дальше
 
         return wrapper
 
