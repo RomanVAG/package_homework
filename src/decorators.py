@@ -45,7 +45,11 @@ def log(filename: Optional[str] = None) -> Callable:
 
 
 @log(filename="mylog.txt")
-def my_function(x, y):
+def my_function(x: int, y: int) -> int:
+    """
+    Пример декорируемой функции, которая принимает на вход два позиционных аргумента:
+    x, y и возвращает их сумму.
+    """
     return x + y
 
 
