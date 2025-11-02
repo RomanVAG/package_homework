@@ -28,7 +28,7 @@ class Testlog:
         # mock_now = замоканный datetime
         # capsys = для перехвата вывода
         """
-        Тестирование вывода в консоль, если файл mylog.txt не задан
+        Тестирование вывода my_function ok в консоль, если файл mylog.txt не задан
         """
         # Фиксируем конкретное время
         fixed_time = datetime(2025, 10, 28, 12, 00, 0)
@@ -45,7 +45,7 @@ class Testlog:
         # mock_now = замоканный datetime
         # capsys = для перехвата вывода
         """
-        Тестирование вывода в консоль, если файл mylog.txt не задан
+        Тестирование вывода в консоль исключения типа Exception, если файл mylog.txt не задан
         """
         # Фиксируем конкретное время
         fixed_time = datetime(2025, 10, 28, 12, 00, 0)
@@ -63,7 +63,7 @@ class Testlog:
         # mock_now = замоканный datetime
         # capsys = для перехвата вывода
         """
-        Тестирование вывода в файл, если файл mylog.txt задан
+        Тестирование вывода my_function ok в файл, если файл mylog.txt задан
         """
         # Фиксируем конкретное время
         fixed_time = datetime(2025, 10, 28, 12, 00, 0)
@@ -75,13 +75,21 @@ class Testlog:
         expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} ok: {result}"
         assert expected in readline
 
-    #
-    #
-    # def test_log_file_Exception(capsys):
-    #     """
-    #     Тестирование вывода в консоль исключения типа Exception, если файл mylog.txt не задан
-    #     """
-    #     @log()
-    #     my_function()
-    #     captured = capsys.readouterr()
-    #     assert captured.out == "2024-01-15 14:30:25 k- my_function ok"
+    @patch('src.decorators.datetime')
+    def test_log_file_Exception(self, mock_now, capsys):
+        # self = этот тест (объект Testlog)
+        # mock_now = замоканный datetime
+        # capsys = для перехвата вывода
+        """
+        Тестирование вывода в файл исключения типа Exception, если файл mylog.txt задан
+        """
+        # Фиксируем конкретное время
+        fixed_time = datetime(2025, 10, 28, 12, 00, 0)
+        mock_now.now.return_value = fixed_time
+        decorated_function = log(filename="mylog.txt")(my_function)
+        with pytest.raises(TypeError):
+            decorated_function("x", 6)
+        with open("mylog.txt", "r", encoding='utf-8') as _:  # чтение информации из файла
+            readline = _.read()
+        expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} error: {TypeError.__name__}. Inputs: ('x', 6), {{}}"
+        assert expected in readline
