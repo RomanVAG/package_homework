@@ -23,7 +23,7 @@ class Testlog:
     """Тесты для декоратора log"""
 
     @patch('src.decorators.datetime')
-    def test_log_console(self, mock_now, capsys):
+    def test_log_console(self, mock_now, capsys, manage_log_file):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
         # capsys = для перехвата вывода
@@ -35,12 +35,12 @@ class Testlog:
         mock_now.now.return_value = fixed_time
         decorated_function = log()(my_function)
         result = decorated_function(7, 6)
-        captured = capsys.readouterr() #  Фикстура, которая ловит вывод ошибки в консоль
+        captured = capsys.readouterr()  # Фикстура, которая ловит вывод ошибки в консоль
         expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} ok: {result}"
         assert expected in captured.out
 
     @patch('src.decorators.datetime')
-    def test_log_console_Exception(self, mock_now, capsys):
+    def test_log_console_Exception(self, mock_now, capsys, manage_log_file):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
         # capsys = для перехвата вывода
@@ -53,7 +53,7 @@ class Testlog:
         decorated_function = log()(my_function)
         with pytest.raises(TypeError):
             decorated_function("x", 6)
-        captured = capsys.readouterr() #  Фикстура, которая ловит вывод ошибки в консоль
+        captured = capsys.readouterr()  # Фикстура, которая ловит вывод ошибки в консоль
         expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} error: {TypeError.__name__}. Inputs: ('x', 6), {{}}"
         assert expected in captured.out
 
@@ -61,7 +61,6 @@ class Testlog:
     def test_log_file(self, mock_now, manage_log_file):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
-        # capsys = для перехвата вывода
         """
         Тестирование вывода my_function ok в файл, если файл mylog.txt задан
         """
@@ -76,10 +75,9 @@ class Testlog:
         assert expected in readline
 
     @patch('src.decorators.datetime')
-    def test_log_file_Exception(self, mock_now, capsys):
+    def test_log_file_Exception(self, mock_now, manage_log_file):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
-        # capsys = для перехвата вывода
         """
         Тестирование вывода в файл исключения типа Exception, если файл mylog.txt задан
         """
