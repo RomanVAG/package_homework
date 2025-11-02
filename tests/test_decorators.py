@@ -18,6 +18,7 @@ def manage_log_file():
     if os.path.exists("mylog.txt"):
         os.remove("mylog.txt")
 
+
 @pytest.mark.usefixtures("manage_log_file")
 class Testlog:
     """Тесты для декоратора log"""
@@ -54,7 +55,8 @@ class Testlog:
         with pytest.raises(TypeError):
             decorated_function("x", 6)
         captured = capsys.readouterr()  # Фикстура, которая ловит вывод ошибки в консоль
-        expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} error: {TypeError.__name__}. Inputs: ('x', 6), {{}}"
+        expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} "
+        f"{my_function.__name__} error: {TypeError.__name__}. Inputs: ('x', 6), {{}}"
         assert expected in captured.out
 
     @patch('src.decorators.datetime')
@@ -89,5 +91,6 @@ class Testlog:
             decorated_function("x", 6)
         with open("mylog.txt", "r", encoding='utf-8') as log_file:  # чтение информации из файла
             readline = log_file.read()
-        expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} error: {TypeError.__name__}. Inputs: ('x', 6), {{}}"
+        expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} "
+        f"{my_function.__name__} error: {TypeError.__name__}. Inputs: ('x', 6), {{}}"
         assert expected in readline
