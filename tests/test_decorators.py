@@ -18,12 +18,12 @@ def manage_log_file():
     if os.path.exists("mylog.txt"):
         os.remove("mylog.txt")
 
-
+@pytest.mark.usefixtures("manage_log_file")
 class Testlog:
     """Тесты для декоратора log"""
 
     @patch('src.decorators.datetime')
-    def test_log_console(self, mock_now, capsys, manage_log_file):
+    def test_log_console(self, mock_now, capsys):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
         # capsys = для перехвата вывода
@@ -40,7 +40,7 @@ class Testlog:
         assert expected in captured.out
 
     @patch('src.decorators.datetime')
-    def test_log_console_Exception(self, mock_now, capsys, manage_log_file):
+    def test_log_console_exception(self, mock_now, capsys):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
         # capsys = для перехвата вывода
@@ -58,7 +58,7 @@ class Testlog:
         assert expected in captured.out
 
     @patch('src.decorators.datetime')
-    def test_log_file(self, mock_now, manage_log_file):
+    def test_log_file(self, mock_now):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
         """
@@ -69,13 +69,13 @@ class Testlog:
         mock_now.now.return_value = fixed_time
         decorated_function = log(filename="mylog.txt")(my_function)
         result = decorated_function(7, 6)
-        with open("mylog.txt", "r", encoding='utf-8') as _:  # чтение информации из файла
-            readline = _.read()
+        with open("mylog.txt", "r", encoding='utf-8') as log_file:  # чтение информации из файла
+            readline = log_file.read()
         expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} ok: {result}"
         assert expected in readline
 
     @patch('src.decorators.datetime')
-    def test_log_file_Exception(self, mock_now, manage_log_file):
+    def test_log_file_exception(self, mock_now):
         # self = этот тест (объект Testlog)
         # mock_now = замоканный datetime
         """
@@ -87,7 +87,7 @@ class Testlog:
         decorated_function = log(filename="mylog.txt")(my_function)
         with pytest.raises(TypeError):
             decorated_function("x", 6)
-        with open("mylog.txt", "r", encoding='utf-8') as _:  # чтение информации из файла
-            readline = _.read()
+        with open("mylog.txt", "r", encoding='utf-8') as log_file:  # чтение информации из файла
+            readline = log_file.read()
         expected = f"{fixed_time.strftime('%Y/%m/%d, %H:%M:%S')} {my_function.__name__} error: {TypeError.__name__}. Inputs: ('x', 6), {{}}"
         assert expected in readline
