@@ -1,6 +1,6 @@
-from typing import Optional, Callable, Any
 from datetime import datetime
 from functools import wraps
+from typing import Any, Callable, Optional
 
 
 def log(filename: Optional[str] = None) -> Callable:
@@ -23,7 +23,7 @@ def log(filename: Optional[str] = None) -> Callable:
                 # Сообщение об успешном выполнении
                 log_message = f"{start_time} {func.__name__} ok: {result}"
                 if filename:  # Если filename задан, логи записываются в указанный файл
-                    with open(filename, "a", encoding='utf-8') as file:
+                    with open(filename, "a", encoding="utf-8") as file:
                         file.write(log_message + "\n")
                 else:  # Если файл не задан, логи выводятся в консоль
                     print(log_message)  # Успешное выполнение
@@ -33,7 +33,7 @@ def log(filename: Optional[str] = None) -> Callable:
                 # Сообщение об ошибке: записываем тип и входные данные
                 log_message = f"{start_time} {func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}"
                 if filename:  # Если filename задан, логи записываются в указанный файл
-                    with open(filename, "a", encoding='utf-8') as file:  # Логирование информацию об ошибке
+                    with open(filename, "a", encoding="utf-8") as file:  # Логирование информацию об ошибке
                         file.write(log_message + "\n")
                 else:  # Если файл не задан, логи выводятся в консоль
                     print(log_message)

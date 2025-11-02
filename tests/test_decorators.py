@@ -1,8 +1,8 @@
-import pytest
 import os
-
-from unittest.mock import patch
 from datetime import datetime
+from unittest.mock import patch
+
+import pytest
 
 from src.decorators import log, my_function
 
