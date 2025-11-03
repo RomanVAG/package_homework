@@ -8,9 +8,6 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
 dependencies = [
-    "pytest (>=8.4.1,<9.0.0)",
-    "flake8 (>=7.3.0,<8.0.0)",
-    "black (>=25.9.0,<26.0.0)"
 ]
 
 [tool.poetry]
@@ -18,10 +15,10 @@ packages = [{include = "package_homework", from = "src"}]
 
 
 [tool.poetry.group.lint.dependencies]
-flake8 = "^7.2.0"
-black = "^25.1.0"
 isort = "^6.0.1"
 mypy = "1.16.0"
+flake8 = "^7.3.0"
+black = "^25.9.0"
 
 
 
