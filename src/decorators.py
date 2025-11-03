@@ -43,17 +43,10 @@ def log(filename: Optional[str] = None) -> Callable:
 
     return decorator_func
 
-
-@log(filename="mylog.txt")
+@log() #  если filename не задан - вывод в консоль, @log(filename="mylog.txt") если filename задан - вывод в файл
 def my_function(x: int, y: int) -> int:
     """
     Пример декорируемой функции, которая принимает на вход два позиционных аргумента:
     x, y и возвращает их сумму.
     """
     return x + y
-
-
-my_function(7, 6)
-# # Вывод в консоль:
-# # 2025/10/28, 12:00:00 my_function error: тип ошибки. Inputs: (1, 2), {}
-# # 2025/10/28, 12:00:00 my_function ok: 13
