@@ -1,3 +1,4 @@
+from src.decorators import log
 from src.generators import card_number_generator, filter_by_currency, transaction_descriptions
 from src.processing import filter_by_state, sort_by_date
 from src.widget import get_date, mask_account_card
@@ -94,7 +95,38 @@ descriptions = transaction_descriptions(transactions)
 for _ in range(5):
     print(next(descriptions))
 
+
 """Демонстрация работы модуля "generators" функции "card_number_generator"."""
 print("Генератор генерирующий номера карт в заданном диапазоне от 0000 0000 0000 0001 до 9999 9999 9999 9999:")
 for card_number in card_number_generator(1, 5):
     print(card_number)
+
+
+"""Демонстрация работы модуля "decorators" функции "log" если лог-файл не задан."""
+@log() # если filename не задан filename="mylog.txt"
+def my_function(x: int, y: int) -> int:
+    """
+    Пример декорируемой функции, которая принимает на вход два позиционных аргумента:
+    x, y и возвращает их сумму.
+    """
+    return x + y
+
+
+my_function(7, 6)
+# # Вывод в консоль:
+# # 2025/10/28, 12:00:00 my_function ok: 13
+
+
+"""Демонстрация работы модуля "decorators" функции "log" если лог-файл задан, но данные переданы с ошибками."""
+@log(filename="mylog.txt") # если filename задан
+def my_function(x: int, y: int) -> int:
+    """
+    Пример декорируемой функции, которая принимает на вход два позиционных аргумента:
+    x, y и возвращает их сумму.
+    """
+    return x + y
+
+
+my_function("x", 6)
+# # Вывод в файл "mylog.txt":
+# # 2025/11/03, 11:24:37 my_function error: TypeError. Inputs: ('x', 6), {}
