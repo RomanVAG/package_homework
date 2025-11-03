@@ -10,7 +10,6 @@ requires-python = ">=3.13,<4.0"
 dependencies = [
     "pytest (>=8.4.1,<9.0.0)",
     "flake8 (>=7.3.0,<8.0.0)",
-    "mypy (>=1.18.2,<2.0.0)",
     "black (>=25.9.0,<26.0.0)"
 ]
 
@@ -22,7 +21,7 @@ packages = [{include = "package_homework", from = "src"}]
 flake8 = "^7.2.0"
 black = "^25.1.0"
 isort = "^6.0.1"
-mypy = "^1.16.0"
+mypy = "1.16.0"
 
 
 
