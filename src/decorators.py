@@ -43,7 +43,8 @@ def log(filename: Optional[str] = None) -> Callable:
 
     return decorator_func
 
-@log() #  если filename не задан - вывод в консоль, @log(filename="mylog.txt") если filename задан - вывод в файл
+
+@log()  # если filename не задан - вывод в консоль, @log(filename="mylog.txt") если filename задан - вывод в файл
 def my_function(x: int, y: int) -> int:
     """
     Пример декорируемой функции, которая принимает на вход два позиционных аргумента:
