@@ -1,4 +1,4 @@
-from src.decorators import log, my_function
+from src.decorators import my_function
 from src.generators import card_number_generator, filter_by_currency, transaction_descriptions
 from src.processing import filter_by_state, sort_by_date
 from src.widget import get_date, mask_account_card
@@ -108,4 +108,3 @@ print("Пример декорируемой функции my_function, кот�
 my_function(7, 6)
 # # Вывод в консоль:
 # # 2025/10/28, 12:00:00 my_function ok: 13
-
