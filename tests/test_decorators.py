@@ -42,11 +42,7 @@ class Testlog:
     """
 
     @patch('src.decorators.datetime')
-    def test_log_console(
-        self,
-        mock_now: MagicMock,
-        capsys: pytest.CaptureFixture[str]
-        ) -> None:
+    def test_log_console(self, mock_now: MagicMock, capsys: pytest.CaptureFixture[str]) -> None:
         """
         Тест: вывод успешного выполнения функции в консоль (без файла лога).
 
@@ -71,11 +67,7 @@ class Testlog:
         assert expected in captured.out
 
     @patch('src.decorators.datetime')
-    def test_log_console_exception(
-        self,
-        mock_now: MagicMock,
-        capsys: pytest.CaptureFixture[str]
-        ) -> None:
+    def test_log_console_exception(self, mock_now: MagicMock, capsys: pytest.CaptureFixture[str]) -> None:
         """
         Тест: вывод ошибки в консоль (без файла лога).
 
@@ -101,10 +93,7 @@ class Testlog:
         assert expected in captured.out
 
     @patch('src.decorators.datetime')
-    def test_log_file(
-        self,
-        mock_now: MagicMock
-        ) -> None:
+    def test_log_file(self, mock_now: MagicMock) -> None:
         """
         Тест: запись успешного выполнения в файл 'mylog.txt'.
 
@@ -130,10 +119,7 @@ class Testlog:
         assert expected in readline
 
     @patch('src.decorators.datetime')
-    def test_log_file_exception(
-        self,
-        mock_now: MagicMock
-        ) -> None:
+    def test_log_file_exception(self, mock_now: MagicMock) -> None:
         """
         Тест: запись ошибки в файл 'mylog.txt'.
 
