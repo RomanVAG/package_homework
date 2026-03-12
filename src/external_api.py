@@ -12,44 +12,45 @@ def conversion_from_USD_and_EUR_to_RUB(parsed_data: dict) -> float:
     для получения текущего курса валют и конвертации суммы операции в рубли.
     """
     # возвращается значение словаря по ключу operationAmount -> amount
-    if parsed_data["operationAmount"]["currency"]["code"] == "USD":
-        # Загрузка переменных из .env-файла
-        load_dotenv()
+    currency = parsed_data["operationAmount"]["currency"]["code"]
 
-        # Получение значения переменной API_KEY из .env-файла
-        API_KEY = os.getenv('API_KEY')
+    # Загрузка переменных из .env-файла
+    load_dotenv()
 
-        # Получение значения переменной amount_USD из parsed_data по ключу amount
-        amount_float = float(parsed_data["operationAmount"]["amount"])
+    # Получение значения переменной API_KEY из .env-файла
+    API_KEY = os.getenv('API_KEY')
 
-        # Задаем адрес сайта, к которому хотим обратиться
-        url = f"https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=USD&amount={amount_float}"
+    # Получение значения переменной amount_float из parsed_data по ключу code
+    amount_float = float(parsed_data["operationAmount"]["amount"])
 
-        payload = {}
-        headers = {
-            "apikey": API_KEY
-        }
-        # Выполняем GET-запрос к сайту и сохраняем ответ в переменную response
-        response = requests.request("GET", url, headers=headers, data=payload)
-        # Получаем статус-код из ответа и выводим его на экран
-        status_code = response.status_code
-        result = response.text
+    # Получение значения переменной amount_float из parsed_data по ключу amount
+    amount_float = float(parsed_data["operationAmount"]["amount"])
 
-        # Проверяем, равен ли статус-код 200, то есть чтобы запрос был успешным
-        if status_code == 200:
-            # Выводим содержимое сайта на экран
-            content = response.text
-            print(f"Содержимое сайта:\n{content}")
-        else:
-            # Выводим сообщение об ошибке
-            print(f"Запрос не был успешным. Возможная причина: {response.reason}")
+    # Задаем адрес сайта, к которому хотим обратиться
+    url = f"https://api.apilayer.com/exchangerates_data/convert?to=RUB&from={currency}&amount={amount_float}"
 
+    payload = {}
+    headers = {
+        "apikey": API_KEY
+    }
+    # Выполняем GET-запрос к сайту и сохраняем ответ в переменную response
+    response = requests.request("GET", url, headers=headers, data=payload)
+    # Получаем статус-код из ответа и выводим его на экран
+    status_code = response.status_code
+    result = response.text
+
+    # Проверяем, равен ли статус-код 200, то есть чтобы запрос был успешным
+    if status_code == 200:
+        # Выводим содержимое сайта на экран
+        content = response.text
+        print(f"Содержимое сайта:\n{content}")
     else:
-        return parsed_data["operationAmount"]["amount"]  # возвращаем сумму операции в рубли
+        # Выводим сообщение об ошибке
+        print(f"Запрос не был успешным. Возможная причина: {response.reason}")
 
 
 # data - строка, тип str
-data_1 = '''{
+data_RUB = '''{
     "id": 441945886,
     "state": "EXECUTED",
     "date": "2019-08-26T10:50:58.294041",
@@ -65,7 +66,7 @@ data_1 = '''{
     "to": "Счет 64686473678894779589"
     }'''
 
-data_2 = '''{
+data_USD = '''{
     "id": 41428829,
     "state": "EXECUTED",
     "date": "2019-07-03T18:35:29.512364",
@@ -81,10 +82,26 @@ data_2 = '''{
     "to": "Счет 35383033474447895560"
     }'''
 
+data_EUR = '''{
+    "id": 782295999,
+    "state": "EXECUTED",
+    "date": "2019-09-11T17:30:34.445824",
+    "operationAmount": {
+        "amount": "54280.01",
+        "currency": {
+            "name": "EUR",
+            "code": "EUR"
+        }
+    },
+    "description": "Перевод организации",
+    "from": "Счет 24763316288121894080",
+    "to": "Счет 96291777776753236930"
+    }'''
+
 # parsed_data - словарь, тип dict
-parsed_data = json.loads(data_2)
+parsed_data = json.loads(data_RUB)
 
 # Результат: "
 # "8221.37",
 result = conversion_from_USD_and_EUR_to_RUB(parsed_data)
-print(result)
+result
