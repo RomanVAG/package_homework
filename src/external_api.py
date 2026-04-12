@@ -7,11 +7,11 @@ import requests
 def conversion_from_USD_and_EUR_to_RUB(parsed_data: dict) -> float:
     """
     Функция конвертации валюты из USD и EUR в рубли. Принимает на вход словарь
-    с данными data о транзакции id и возвращает сумму транзакции (ключ amount) в рублях,
+    с данными о транзакции и возвращает сумму транзакции (ключ amount) в рублях,
     тип данных float. Если транзакция была в USD или EUR, происходит обращение к внешнему API
     для получения текущего курса валют и конвертации суммы операции в рубли.
     """
-    # возвращается значение словаря по ключу operationAmount -> amount
+    # Получение значения переменной currency из parsed_data по ключу code
     currency = parsed_data["operationAmount"]["currency"]["code"]
 
     # Загрузка переменных из .env-файла
@@ -19,9 +19,8 @@ def conversion_from_USD_and_EUR_to_RUB(parsed_data: dict) -> float:
 
     # Получение значения переменной API_KEY из .env-файла
     API_KEY = os.getenv('API_KEY')
-
-    # Получение значения переменной amount_float из parsed_data по ключу code
-    amount_float = float(parsed_data["operationAmount"]["amount"])
+    if not API_KEY:
+        print("API ключ не загружен или пуст")
 
     # Получение значения переменной amount_float из parsed_data по ключу amount
     amount_float = float(parsed_data["operationAmount"]["amount"])
@@ -42,14 +41,14 @@ def conversion_from_USD_and_EUR_to_RUB(parsed_data: dict) -> float:
     # Проверяем, равен ли статус-код 200, то есть чтобы запрос был успешным
     if status_code == 200:
         # Выводим содержимое сайта на экран
-        content = response.text
-        print(f"Содержимое сайта:\n{content}")
+        content = response.json()
+        return content.get("result", 0.0)  # Получаем значение конвертированной суммы
     else:
         # Выводим сообщение об ошибке
         print(f"Запрос не был успешным. Возможная причина: {response.reason}")
 
 
-# data - строка, тип str
+# Примеры данных с транзакциями в формате JSON - строк
 data_RUB = '''{
     "id": 441945886,
     "state": "EXECUTED",
@@ -98,10 +97,10 @@ data_EUR = '''{
     "to": "Счет 96291777776753236930"
     }'''
 
-# parsed_data - словарь, тип dict
-parsed_data = json.loads(data_RUB)
+# Преобразуем словарь с данными о транзакции в формате JSON-строки в словарь Python типа dict
+parsed_data = json.loads(data_EUR)
 
-# Результат: "
-# "8221.37",
+# Результат:
+
 result = conversion_from_USD_and_EUR_to_RUB(parsed_data)
 result
